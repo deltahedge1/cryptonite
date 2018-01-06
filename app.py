@@ -14,6 +14,23 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URI"]
 db = SQLAlchemy(app)
 api = Api(app)
 
+class User(db.Model):
+    _id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(200), primary_key=True)
+    name = db.Column(db.String(80))
+    email = db.Column(db.String(120), unique=True)
+    password= db.Column(db.String(120))
+
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+        self.public_id = public_id
+        self.password = password
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
+
+
 @app.route("/")
 def index():
     return redirect(url_for("login"))
