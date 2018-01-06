@@ -5,3 +5,4 @@ gunicorn
 jwt
 python-dateutil
 uuid
+psycopg2
