@@ -1,23 +1,40 @@
 from flask import Flask, request, redirect, url_for, render_template
 from flask_restful import Resource, Api
 from cryptocgt import Cryptotax
+from flask_sqlalchemy import SQLAlchemy
 import jwt
+import uuid
+import os
 
 cgtcalcultor = Cryptotax()
 
 app = Flask(__name__)
-app.secret_key = [r'\x903,J-H\xd4k`\x0e\x935\xb9\tX\xfe\x92p.\xeft\xd3\xc1\x07']
+app.config["SECRET_KEY"] = 'aefaf674ac254f8ca6c1b6a73880aa55'
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URI"]
+db = SQLAlchemy(app)
 api = Api(app)
 
 @app.route("/")
 def index():
     return redirect(url_for("login"))
 
-@app.route("/login")
+@app.route("/login", methods=["GET","POST"])
 def login():
+
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        password = request.form["password"]
+        public_id = str(uuid.uuid4())
+
+        api_key = jwt.encode({"public_id": public_id}, app.secret_key)
+        api_key = str(jwt.encode({"public_id": public_id}, app.config["SECRET_KEY"]).decode("utf-8"))
+
+        return render_template("success.html", name=name, api_key=api_key)
+
     return render_template("login.html")
 
-class Cryptonite2(Resource):
+class Cryptonite(Resource):
     def post(self):
 
         data =  request.get_json()
@@ -25,7 +42,7 @@ class Cryptonite2(Resource):
 
         return(cgtcalcultor.calculateCGT(data))
 
-api.add_resource(Cryptonite2, "/api/v1/cgt")
+api.add_resource(Cryptonite, "/api/v1/cgt")
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

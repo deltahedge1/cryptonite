@@ -4,6 +4,12 @@
         <meta charset="utf-8">
         <title>login</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+
+        <style>
+            p{
+                color: red;
+            }
+        </style>
     </head>
     <body>
 
@@ -11,43 +17,43 @@
             <a class="navbar-brand" href="#">Cryptonite</a>
         </nav>
 
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-2">
+            <div class="col-3">
             </div>
 
-            <div class="col-8">
+            <div class="col-6">
                 <h1 class="text-center">Sign Up</h1>
             </div>
 
-            <div class="col-2">
+            <div class="col-3">
             </div>
 
         </div>
 
         <div class="row">
 
-            <div class="col-2">
+            <div class="col-3">
             </div>
 
-                <div class="col-8 border border-primary rounded">
-                        <form>
+                <div class="col-6 border border-primary rounded">
+                        <form name="myForm" method="POST" action="/login">
                             <br>
 
                             <div class="form-group">
                                     <label for="name">Name</label>
-                                    <input type="Name" name = "name" class="form-control" id="name1" placeholder="Enter name">
+                                    <input type="Name" name ="name" class="form-control" id="name1" placeholder="Enter name" required>
                             </div>
 
                             <div class="form-group">
                                     <label for="exampleInputEmail1">Email address</label>
-                                        <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                                        <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
                                     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                             </div>
 
                             <div class="form-group">
                                     <label for="exampleInputPassword1">Password</label>
-                                    <input type="password" name = "Password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                                    <input type="password" name = "password" class="form-control" id="exampleInputPassword1" placeholder="Password" required>
                             </div>
 
                           <button type="submit" class="btn btn-primary btn-block">Submit</button>
@@ -57,7 +63,7 @@
                         </form>
                 </div>
 
-            <div class="col-2">
+            <div class="col-3">
             </div>
 
         </div>
