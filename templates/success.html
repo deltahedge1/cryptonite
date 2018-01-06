@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>successful login</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <a class="navbar-brand" href="#">Cryptonite</a>
+        </nav>
+
+        <div style="background:transparent !important" class="jumbotron text-center">
+                <h1 class="display-2">{{name}} Congratualtions!!!</h1>
+                    <h2 class="display-6">You have just signed up to cryptonite the world first cryptocurreny tax calculator</p>
+                <hr class="my-4">
+                    <br>
+                    <p class="lead">
+                    <a class="btn btn-primary btn-lg" role="button" id="button">click here for your api key</a>
+                    </p>
+        </div>
+
+    </body>
+                <div id="login" style="visibility:hidden">
+                    <blockquote class="blockquote text-center">
+                        <p class="h6">{{api_key}}</p>
+                        <footer class="blockquote-footer"> do not give this key out<cite title="Source Title"> to anyone</cite></footer>
+                    </blockquote>
+                </div>
+
+        <script type="text/javascript">
+        document.getElementById('button').onclick = function() {
+            document.getElementById('login').style.visibility = 'visible';
+            }
+        </script>
+</html>
