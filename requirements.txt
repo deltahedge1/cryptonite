@@ -2,7 +2,7 @@ flask
 flask_restful
 flask_sqlalchemy
 gunicorn
-jwt
+pyjwt
 python-dateutil
 uuid
 psycopg2
