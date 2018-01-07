@@ -45,7 +45,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, app.config["SECRET_KEY"])
         except:
-            return jsonify("message":"Token is invalid"), 401
+            return jsonify({"message":"Token is invalid"}), 401
         return f(*args,**kwargs)
 
     return decorated
