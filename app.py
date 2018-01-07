@@ -5,7 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 import jwt
 import uuid
 import os
-
+from functools import wraps
+import jsonify
 cgtcalcultor = Cryptotax()
 
 app = Flask(__name__)
@@ -30,6 +31,25 @@ class User(db.Model):
     def __repr__(self):
         return '<Name %r>' % self.name
 
+def token_required(f):
+    @wraps(f)
+    def decorated(*args,**kwargs):
+        token = None
+
+        if "x-access-token" in request.headers:
+            token = request.headers["x-access-token"]
+
+        if not token:
+            return jsonify({"message":"token is missing"}), 401
+
+        try:
+            data = jwt.decode(token, app.config["SECRET_KEY"])
+        except:
+            return jsonify("message":"Token is invalid"), 401
+        return f(*args,**kwargs)
+
+    return decorated
+
 
 @app.route("/")
 def index():
@@ -39,20 +59,21 @@ def index():
 def login():
 
     if request.method == "POST":
+        public_id = str(uuid.uuid4())
         name = request.form["name"]
         email = request.form["email"]
         password = request.form["password"]
-        public_id = str(uuid.uuid4())
 
         api_key = str(jwt.encode({"public_id": public_id}, app.config["SECRET_KEY"]).decode("utf-8"))
 
-        user = User(name,email,password,public_id)
+        user = User(public_id,name,email,password)
         db.session.add(user)
         db.session.commit()
-        
+
         return render_template("success.html", name=name, api_key=api_key)
 
     return render_template("login.html")
+
 
 class Cryptonite(Resource):
     def post(self):
