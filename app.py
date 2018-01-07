@@ -15,8 +15,8 @@ db = SQLAlchemy(app)
 api = Api(app)
 
 class User(db.Model):
-    _id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.String(200), primary_key=True)
+    #_id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(48), primary_key=True)
     name = db.Column(db.String(80))
     email = db.Column(db.String(120), unique=True)
     password= db.Column(db.String(120))
