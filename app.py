@@ -75,6 +75,10 @@ def login():
     return render_template("login.html")
 
 
+class Test(Resource):
+    def get(self):
+        return {"message":"hello world"}
+
 class Cryptonite(Resource):
     def post(self):
 
@@ -84,6 +88,7 @@ class Cryptonite(Resource):
         return(cgtcalcultor.calculateCGT(data))
 
 api.add_resource(Cryptonite, "/api/v1/cgt")
+api.add_resource(Test, "/test")
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
