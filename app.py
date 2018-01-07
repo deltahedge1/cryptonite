@@ -74,7 +74,7 @@ def login():
 
     return render_template("login.html")
 
-
+@token_required
 class Test(Resource):
     def get(self):
         return {"message":"hello world"}
