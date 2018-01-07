@@ -6,12 +6,13 @@ import jwt
 import uuid
 import os
 from functools import wraps
+import wrapt
 
 cgtcalcultor = Cryptotax()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'aefaf674ac254f8ca6c1b6a73880aa55'
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+#app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
 db = SQLAlchemy(app)
 api = Api(app)
 
@@ -33,23 +34,26 @@ class User(db.Model):
 
 def token_required(f):
     @wraps(f)
-    def decorated(*args,**kwargs):
+    def decorated(self,*args,**kwargs):
         token = None
+
+        if "x-access-token" not in request.headers:
+            return ({"message":"x-access-token is missing from header"})
 
         if "x-access-token" in request.headers:
             token = request.headers["x-access-token"]
         else:
-            return jsonify({"message":"x-access-token is not required"}), 401
+            return ({"message":"token is missing"}), 401
 
         if not token:
-            return jsonify({"message":"token is missing"}), 401
+            return ({"message":"token is missing"}), 401
 
         try:
             data = jwt.decode(token, app.config["SECRET_KEY"])
         except:
-            return jsonify({"message":"Token is invalid"}), 401
-        return f(*args,**kwargs)
+            return ({"message":"Token is invalid"}), 401
 
+        return f(*args,**kwargs)
     return decorated
 
 
@@ -76,12 +80,14 @@ def login():
 
     return render_template("login.html")
 
-@token_required()
 class Test(Resource):
+
+    @token_required
     def get(self):
-        return {"message":"hello world"}
+        return ({"message":"hello world"})
 
 class Cryptonite(Resource):
+    @token_required
     def post(self):
 
         data =  request.get_json()
