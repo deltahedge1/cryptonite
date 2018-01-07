@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for, render_template
+from flask import Flask, request, redirect, url_for, render_template, jsonify
 from flask_restful import Resource, Api
 from cryptocgt import Cryptotax
 from flask_sqlalchemy import SQLAlchemy
@@ -6,7 +6,7 @@ import jwt
 import uuid
 import os
 from functools import wraps
-import jsonify
+
 cgtcalcultor = Cryptotax()
 
 app = Flask(__name__)
