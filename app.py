@@ -34,7 +34,7 @@ class User(db.Model):
 
 def token_required(f):
     @wraps(f)
-    def decorated(self,*args,**kwargs):
+    def decorated(*args,**kwargs):
         token = None
 
         if "x-access-token" not in request.headers:
