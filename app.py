@@ -21,7 +21,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True)
     password= db.Column(db.String(120))
 
-    def __init__(self, name, email,public_id, password):
+    def __init__(self, name, email, public_id, password):
         self.name = name
         self.email = email
         self.public_id = public_id
@@ -44,9 +44,12 @@ def login():
         password = request.form["password"]
         public_id = str(uuid.uuid4())
 
-        api_key = jwt.encode({"public_id": public_id}, app.secret_key)
         api_key = str(jwt.encode({"public_id": public_id}, app.config["SECRET_KEY"]).decode("utf-8"))
 
+        user = User(name,email,password,public_id)
+        db.session.add(user)
+        db.session.commit()
+        
         return render_template("success.html", name=name, api_key=api_key)
 
     return render_template("login.html")
