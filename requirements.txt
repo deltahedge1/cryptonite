@@ -6,4 +6,4 @@ pyjwt
 python-dateutil
 uuid
 psycopg2
-wrapts
+wrapt
