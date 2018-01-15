@@ -12,25 +12,29 @@ cgtcalcultor = Cryptotax()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'aefaf674ac254f8ca6c1b6a73880aa55'
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
-db = SQLAlchemy(app)
+try:
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+    db = SQLAlchemy(app)
+
+    class User(db.Model):
+        #_id = db.Column(db.Integer, primary_key=True)
+        public_id = db.Column(db.String(48), primary_key=True)
+        name = db.Column(db.String(80))
+        email = db.Column(db.String(120), unique=True)
+        password= db.Column(db.String(120))
+
+        def __init__(self, name, email, public_id, password):
+            self.name = name
+            self.email = email
+            self.public_id = public_id
+            self.password = password
+
+        def __repr__(self):
+            return '<Name %r>' % self.name
+except:
+    pass
+
 api = Api(app)
-
-class User(db.Model):
-    #_id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.String(48), primary_key=True)
-    name = db.Column(db.String(80))
-    email = db.Column(db.String(120), unique=True)
-    password= db.Column(db.String(120))
-
-    def __init__(self, name, email, public_id, password):
-        self.name = name
-        self.email = email
-        self.public_id = public_id
-        self.password = password
-
-    def __repr__(self):
-        return '<Name %r>' % self.name
 
 def token_required(f):
     @wraps(f)
@@ -51,7 +55,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, app.config["SECRET_KEY"])
         except:
-            return ({"message":"Token is invalid"}), 401
+            return ({"message":"token is invalid"}), 401
 
         return f(*args,**kwargs)
     return decorated
@@ -73,6 +77,7 @@ def login():
         api_key = str(jwt.encode({"public_id": public_id}, app.config["SECRET_KEY"]).decode("utf-8"))
 
         user = User(public_id,name,email,password)
+        db.session.rollback()
         db.session.add(user)
         db.session.commit()
 
@@ -81,7 +86,6 @@ def login():
     return render_template("login.html")
 
 class Test(Resource):
-
     @token_required
     def get(self):
         return ({"message":"hello world"})
