@@ -321,7 +321,7 @@ class Cryptotax():
             taxableIncomeList[crypto]["Total"] = total
 
         taxableIncomeList = {"taxEvents":taxableIncomeList}
-        taxableIncomeList["cummulativeTotal"] = cummulativeTotal
+        taxableIncomeList["cumulativeTotal"] = cummulativeTotal
 
 
         return taxableIncomeList
