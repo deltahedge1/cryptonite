@@ -94,10 +94,11 @@ class Cryptonite(Resource):
     @token_required
     def post(self):
 
-        data =  request.get_json()
-        data = data["data"]
+        capturedData =  request.get_json()
+        data = capturedData["data"]
+        entityType = capturedData["entityType"]
 
-        return(cgtcalcultor.calculateCGT(data))
+        return(cgtcalcultor.calculateCGT(data,entityType))
 
 api.add_resource(Cryptonite, "/api/v1/cgt")
 api.add_resource(Test, "/test")
