@@ -8,7 +8,7 @@ import os
 from functools import wraps
 import wrapt
 
-cgtcalcultor = Cryptotax()
+cgtcalculator = Cryptotax()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'aefaf674ac254f8ca6c1b6a73880aa55'
@@ -91,6 +91,7 @@ class Test(Resource):
         return ({"message":"hello world"})
 
 class Cryptonite(Resource):
+    #class used to calcaulte CGT
     @token_required
     def post(self):
 
@@ -98,9 +99,16 @@ class Cryptonite(Resource):
         data = capturedData["data"]
         entityType = capturedData["entityType"]
 
-        return(cgtcalcultor.calculateCGT(data,entityType))
+        return(cgtcalculator.calculateCGT(data,entityType))
+
+class GetAttributes(Resource):
+    #class used to get the entity types
+    @token_required
+    def get(self):
+        return cgtcalculator.getEntityTypes()
 
 api.add_resource(Cryptonite, "/api/v1/cgt")
+api.add_resource(GetAttributes, "/api/v1/entityTypes")
 api.add_resource(Test, "/test")
 
 if __name__ == "__main__":
