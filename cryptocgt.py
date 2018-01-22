@@ -3,16 +3,20 @@
 Created on Mon Dec 25 12:30:35 2017
 
 @author: ihassan1
-need to add the Personal Use Asset 10,000
-need to add the Institution vs Company entity and hence the 50% CGT discount and how to output it
+need to add the Personal Use Asset 10,000 based on costbase
+need to look at converting the currencies go aud
+need to look at how transfers look
+need to add the Institution vs Company entity and hence the 50% CGT discount and how to output it(Added)
 """
 
 import dateutil.parser
 import datetime
+import calendar
+
 
 data = [{
         "AvgPrice":1.0,
-        "CreatedTimestampUtc":"2014-08-05T06:42:11.3032208Z",
+        "CreatedTimestampUtc":"2013-08-05T06:42:11.3032208Z",
         "FeePercent":0.005,
         "OrderGuid":"5c8885cd-5384-4e05-b397-9f5119353e10",
         "OrderType":"MarketBid",
@@ -23,118 +27,104 @@ data = [{
         "Status":"Filled",
         "Value":17.47,
         "Volume":5.00000000
-        },
-        {
-        "AvgPrice":2.0,
-        "CreatedTimestampUtc":"2015-08-03T18:33:55.4327861Z",
-        "FeePercent":0.005,
-        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
-        "OrderType":"LimitBid",
-        "Outstanding":0.5,
-        "Price":700,
-        "PrimaryCurrencyCode":"Xbt",
-        "SecondaryCurrencyCode":"Usd",
-        "Status":"PartiallyFilledAndCancelled",
-        "Value":1050,
-        "Volume":10.00000000
-        },
-        {
-        "AvgPrice":3.0,
-        "CreatedTimestampUtc":"2016-08-02T05:33:48.2354125Z",
-        "FeePercent":0.005,
-        "OrderGuid":"33ea8ee7-5b7b-4745-b604-1a3ce955ca1b",
-        "OrderType":"MarketBid",
-        "Outstanding":0,
-        "Price":"null",
-        "PrimaryCurrencyCode":"Xbt",
-        "SecondaryCurrencyCode":"Usd",
-        "Status":"Filled",
-        "Value":975,
-        "Volume":20.00000000,
-        },
-        {
-        "AvgPrice":5.0,
-        "CreatedTimestampUtc":"2016-08-02T05:33:48.2354125Z",
-        "FeePercent":0.005,
-        "OrderGuid":"33ea8ee7-5b7b-4745-b604-1a3ce955ca1b",
-        "OrderType":"MarketOffer",
-        "Outstanding":0,
-        "Price":"null",
-        "PrimaryCurrencyCode":"Xbt",
-        "SecondaryCurrencyCode":"Usd",
-        "Status":"Filled",
-        "Value":975,
-        "Volume":30.00000000
         },
         {
         "AvgPrice":1.0,
-        "CreatedTimestampUtc":"2014-08-05T06:42:11.3032208Z",
+        "CreatedTimestampUtc":"2013-08-03T18:33:55.4327861Z",
+        "FeePercent":0.005,
+        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
+        "OrderType":"LimitBid",
+        "Outstanding":0.5,
+        "Price":700,
+        "PrimaryCurrencyCode":"Xbt",
+        "SecondaryCurrencyCode":"Usd",
+        "Status":"PartiallyFilledAndCancelled",
+        "Value":1050,
+        "Volume":4.00000000
+        },
+        {
+        "AvgPrice":2.0,
+        "CreatedTimestampUtc":"2015-08-01T18:33:55.4327861Z",
+        "FeePercent":0.005,
+        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
+        "OrderType":"LimitOffer",
+        "Outstanding":0.5,
+        "Price":700,
+        "PrimaryCurrencyCode":"Xbt",
+        "SecondaryCurrencyCode":"Usd",
+        "Status":"PartiallyFilledAndCancelled",
+        "Value":1050,
+        "Volume":6.00000000
+        },
+        {
+        "AvgPrice":2.0,
+        "CreatedTimestampUtc":"2015-08-11T18:33:55.4327861Z",
+        "FeePercent":0.005,
+        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
+        "OrderType":"LimitOffer",
+        "Outstanding":0.5,
+        "Price":700,
+        "PrimaryCurrencyCode":"Xbt",
+        "SecondaryCurrencyCode":"Usd",
+        "Status":"PartiallyFilledAndCancelled",
+        "Value":1050,
+        "Volume":2.00000000
+        },
+        {
+        "AvgPrice":1.0,
+        "CreatedTimestampUtc":"2015-08-05T06:42:11.3032208Z",
         "FeePercent":0.005,
         "OrderGuid":"5c8885cd-5384-4e05-b397-9f5119353e10",
         "OrderType":"MarketBid",
         "Outstanding":0,
         "Price":"null",
-        "PrimaryCurrencyCode":"Btc",
+        "PrimaryCurrencyCode":"Xbt",
         "SecondaryCurrencyCode":"Usd",
         "Status":"Filled",
         "Value":17.47,
         "Volume":5.00000000
         },
         {
-        "AvgPrice":2.0,
-        "CreatedTimestampUtc":"2015-08-03T18:33:55.4327861Z",
+        "AvgPrice":1.0,
+        "CreatedTimestampUtc":"2013-08-03T18:33:55.4327861Z",
         "FeePercent":0.005,
         "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
         "OrderType":"LimitBid",
         "Outstanding":0.5,
         "Price":700,
-        "PrimaryCurrencyCode":"Btc",
+        "PrimaryCurrencyCode":"Xbt",
         "SecondaryCurrencyCode":"Usd",
         "Status":"PartiallyFilledAndCancelled",
         "Value":1050,
-        "Volume":10.00000000
+        "Volume":4.00000000
         },
         {
-        "AvgPrice":3.0,
-        "CreatedTimestampUtc":"2016-08-02T05:33:48.2354125Z",
+        "AvgPrice":2.0,
+        "CreatedTimestampUtc":"2015-08-01T18:33:55.4327861Z",
         "FeePercent":0.005,
-        "OrderGuid":"33ea8ee7-5b7b-4745-b604-1a3ce955ca1b",
-        "OrderType":"MarketBid",
-        "Outstanding":0,
-        "Price":"null",
-        "PrimaryCurrencyCode":"Btc",
+        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
+        "OrderType":"LimitOffer",
+        "Outstanding":0.5,
+        "Price":700,
+        "PrimaryCurrencyCode":"Xbt",
         "SecondaryCurrencyCode":"Usd",
-        "Status":"Filled",
-        "Value":975,
-        "Volume":20.00000000,
+        "Status":"PartiallyFilledAndCancelled",
+        "Value":1050,
+        "Volume":6.00000000
         },
         {
-        "AvgPrice":5.0,
-        "CreatedTimestampUtc":"2016-09-02T05:33:48.2354125Z",
+        "AvgPrice":2.0,
+        "CreatedTimestampUtc":"2015-08-11T18:33:55.4327861Z",
         "FeePercent":0.005,
-        "OrderGuid":"33ea8ee7-5b7b-4745-b604-1a3ce955ca1b",
-        "OrderType":"MarketOffer",
-        "Outstanding":0,
-        "Price":"null",
-        "PrimaryCurrencyCode":"Btc",
+        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
+        "OrderType":"LimitOffer",
+        "Outstanding":0.5,
+        "Price":700,
+        "PrimaryCurrencyCode":"Xbt",
         "SecondaryCurrencyCode":"Usd",
-        "Status":"Filled",
-        "Value":975,
-        "Volume":5.00000000
-        },
-        {
-        "AvgPrice":5.0,
-        "CreatedTimestampUtc":"2016-08-02T05:33:48.2354125Z",
-        "FeePercent":0.005,
-        "OrderGuid":"33ea8ee7-5b7b-4745-b604-1a3ce955ca1b",
-        "OrderType":"MarketOffer",
-        "Outstanding":0,
-        "Price":"null",
-        "PrimaryCurrencyCode":"Btc",
-        "SecondaryCurrencyCode":"Usd",
-        "Status":"Filled",
-        "Value":975,
-        "Volume":25.00000000
+        "Status":"PartiallyFilledAndCancelled",
+        "Value":1050,
+        "Volume":2.00000000
         }]
 
 #create list for Xbt, Eth, Bch
@@ -146,22 +136,26 @@ class Cryptotax():
     __description__ = "calculating the CGT tax for independent reserve by using the FIFO method | offers = Investor selling a crypto | bid = Investor buying a crypto"
 
     
-    taxDiscountsDict = {"individual":0.5, "trust":2/3, "SMSF":2/3, "company":1}
+    taxDiscountsDict = {"individual":0.5, "trust":0.5, "fund": 2/3, "SMSF":2/3, "company":1}
     
     
     def getEntityTypes(self):
+        #get valid entity types to put in to calculation
         return(list(self.taxDiscountsDict.keys()))
+
+
+    def _convertToDateTime(self,date):
+        #convert to datetime format
+        return dateutil.parser.parse(date)
     
-    #def __init__(self,data):
-        #create data and then filter for only filled orders
-        #self.data = data
-        #self.data = self._filteredForFilledOrdersAndTimeSort(self.data)
-
-        #initialise the crypto currencies in portfolio, the offers, and bids
-        #self.cryptoList = self._uniqueCurrencies(data)
-        #self.offers = self._offersList(data)
-        #self.bids = self._bidsList(data)
-
+    def _convertToDateIso(self,date):
+        #convert dates to ISO format
+        return date.isoformat()
+    
+    def _TimeSort(self, data):
+        #sorts the list of dictionaries by date
+        return sorted(data,key=lambda d: d["DisposalTimeStampUtc"])
+            
 
     def _filteredForFilledOrdersAndTimeSort(self, data):
         #filter for only Filled orders and then sort based on date
@@ -215,13 +209,13 @@ class Cryptotax():
     def _getFinYears(self, data):
     #get the financial year buckets when events can happen
 
-        #get a list of all years and convert to date time object
+        #get a list of all years and convert to datetime object
         yearList = []
         for crypto in data:
             for item in data[crypto]:
                 d = dateutil.parser.parse(item["CreatedTimestampUtc"])
                 yearList.append(d.date().year)
-
+        
         minYear = min(yearList)
         maxYear = max(yearList)
 
@@ -230,8 +224,22 @@ class Cryptotax():
         yearList.append([datetime.date(maxYear,7,1),datetime.date(maxYear+1,6,30)])
 
         return yearList
-
-    def calculateCGT(self, data, entityType="individual"):
+    
+    def _calculateTotalTaxYearCGT(self, losses, gainsNoDiscount, gainsDiscount, discountRate):
+        #formula used to calculate CGT gains after losses and eligible discounts
+        
+        if gainsNoDiscount + gainsDiscount < losses:#if losses greater than all my gains
+            return gainsDiscount + (gainsNoDiscount - losses)
+        elif gainsNoDiscount >= losses: #if gainsNoDiscount cover all losses offset only them
+            return gainsDiscount*discountRate + (gainsNoDiscount-losses)
+        elif gainsNoDiscount < losses: #if gainsNoDiscount cover only part of losses
+            if gainsDiscount < gainsNoDiscount - losses:# gainsDiscount and gainNoDiscount cannot cover all losses
+                return gainsDiscount + (gainsNoDiscount - losses)
+            elif gainsDiscount >= gainsNoDiscount - losses: #gainsDiscount are able to cover leftover lossess
+                return (gainsDiscount + (gainsNoDiscount - losses))*discountRate
+        
+        
+    def calculateCGT(self, data, entityType="individual", previousLosses=0, CGTNoDiscountGains=0,discountedCGTGains=0):
         #calculates CGT and returns for each CGT event per crypto
         self._data = data
         self._data = self._filteredForFilledOrdersAndTimeSort(self._data)
@@ -244,124 +252,137 @@ class Cryptotax():
         taxDiscountRate = self.taxDiscountsDict[entityType]
         #print("offers",offers)
         #print("bids",bids)
-
-        #this is to get finYears array
-        finYears = self._getFinYears(offers)
-        finYearsDict = {i[1].year:{} for i in finYears} #{2015:{}, 2016:{}}
         
-        #put crypto in each finYears array
-        for financialYear in finYearsDict:
-            for crypto in self._cryptoList:
-                finYearsDict[financialYear][crypto] = {}
-
-        #taxableIncomeList = dict((crypto,{}) for crypto in self._cryptoList)
-
+        
+        #this is to get finYears array like so {2015:{"cgtEvents":[]}, 2016:{"cgtEvents":[]}}
+        finYears = self._getFinYears(offers)
+        finYearsDict2 = {i[1].year:{"cgtGainsNoDiscount":{"cgtEvents":[]},"cgtGainsDiscount":{"cgtEvents":[]},"cgtLosses":{"cgtEvents":[]}} for i in finYears} 
+        #print(finYearsDict)
+        
+        
 ###############################################################################################################
 ###############################################################################################################
-        for crypto in offers:
+        
+        #initalise all the transactions that I will use to calculate income tax
+        cgtGainsNoDiscount = []
+        cgtGainsDiscount = []
+        cgtLosses = []
+        
+        cumcgtGainsNoDiscount = 0
+        cumcgtGainsDiscount = 0
+        cumcgtLosses = 0
+        
+        for crypto in offers:   
 
             for disposal in offers[crypto]:
 
-                if disposal["Volume"] <= bids[crypto][0]["Volume"]:
+                tempCostbaseList = [] #initalize a list that we will use populate with bought items that filled up the volume
+                count = 0 #this is count of the number of items that make up the volume
+                cumDisposalVolume = 0 #this is the volume of the buys that we want a cumulative total for
 
-                    taxableIncome = disposal["Volume"]*(disposal["AvgPrice"]-bids[crypto][0]["AvgPrice"])
-                    newBidsVolume = bids[crypto][0]["Volume"]-disposal["Volume"]
-                    if newBidsVolume != 0:
-                        bids[crypto][0]["Volume"] = bids[crypto][0]["Volume"]-disposal["Volume"] #reduce the costbase volume down to reflect what was not included in the costbase just used
+                while cumDisposalVolume < disposal["Volume"]: #if the disposal volume is higher than first cost base add more units till it isnt
+
+                    cumDisposalVolume += bids[crypto][count]["Volume"]
+                    tempCostbaseList.append(dict(bids[crypto][count]))
+                    
+                    count += 1
+                    
+                #adjust Volume to accomodate the change in the last volume
+                if cumDisposalVolume > disposal["Volume"]:
+                    tempCostbaseList[len(tempCostbaseList)-1]["Volume"] = bids[crypto][len(tempCostbaseList)-1]["Volume"]-(cumDisposalVolume - disposal["Volume"]) #reduce the volume of last point in temp to match disposal volume
+                
+                #print(tempCostbaseList)
+                dateSold = self._convertToDateTime(disposal["CreatedTimestampUtc"])
+                #print(dateSold)
+                
+                for tempAcquisition in tempCostbaseList:
+                    dateBought = self._convertToDateTime(tempAcquisition["CreatedTimestampUtc"])
+                    
+                    #how many days required to be eligible for discount depends on leap years
+                    if calendar.isleap(dateBought.year) == True:
+                        discountDaysRequired = 367
                     else:
-                        del bids[crypto][0]
-                        
-
-                else:
-
-                    temp = [] #initalize a list that we will use populate with bought items that filled up the volume
-                    tempCostbase = 0
-                    count = 0 #this is count of the number of items that make up the volume
-                    cumDisposalVolume = 0 #this is the volume of the buys that we want a cumulative total for
-
-                    while cumDisposalVolume < disposal["Volume"]: #if the disposal volume is higher than first cost base add more units till it isnt
-
-                        cumDisposalVolume += bids[crypto][count]["Volume"]
-                        temp.append(dict(bids[crypto][count]))
-                        
-                        count += 1
-                        
-                    #adjust Volume to accomodate the change in the last volume
-                    if cumDisposalVolume > disposal["Volume"]:
-                        temp[len(temp)-1]["Volume"] = bids[crypto][len(temp)-1]["Volume"]-(cumDisposalVolume - disposal["Volume"]) #reduce the volume of last point in temp to match disposal volume
+                        discountDaysRequired = 366
                     
+                    #check if it is a gain or loss for each parcel of the cost base that makes up the cgt event and add the crypto and gainorloss
+                    gainOrloss = tempAcquisition["Volume"]*disposal["AvgPrice"]-tempAcquisition["Volume"]*tempAcquisition["AvgPrice"]
+                    tempAcquisition["gainOrloss"] = gainOrloss
+                    tempAcquisition["PrimaryCurrencyCode"]= crypto
+                    tempAcquisition["DisposalTimeStampUtc"] = disposal["CreatedTimestampUtc"]
                     
-                    for tempdisposal in temp:
-                        tempCostbase = tempCostbase + tempdisposal["Volume"]*tempdisposal["AvgPrice"]
-
-                    #calculate the taxable Income
-                    taxableIncome = disposal["Volume"]*disposal["AvgPrice"] - tempCostbase
-                    
-                    #delete the bid which I have used
-                    del bids[crypto][:count-1]
-                    
-                    bids[crypto][0]["Volume"] = cumDisposalVolume - disposal["Volume"] #change the bids volume in original list to match the difference in the temp list
+                    #check if there is a loss event or if not if it is eligible for the cgt discount and put in respective lists btw cgtLoss, cgtGainDiscount, cgtGainNoDiscount
+                    if gainOrloss <0:
+                        cgtLosses.append(tempAcquisition)
+                        cumcgtLosses += gainOrloss
+                    elif (dateSold - dateBought).days > discountDaysRequired:
+                        cgtGainsDiscount.append(tempAcquisition)
+                        cumcgtGainsDiscount += gainOrloss
+                    else:
+                        cgtGainsNoDiscount.append(tempAcquisition)
+                        cumcgtGainsNoDiscount += gainOrloss
+    
+                #delete the bid which I have used
+                del bids[crypto][:count-1]
+                
+                #change the bids volume in original list to match the difference in the tempCostBaseList
+                bids[crypto][0]["Volume"] = cumDisposalVolume - disposal["Volume"] 
 ###############################################################################################################                    
-###############################################################################################################                    #taxableIncomeList[crypto]["CGTevent"+str(cgtEventCount)] = taxableIncom
-
-                #loop through all date period buckets and find which bucket it belongs to
-                for dateperiod in finYears:
-                    d = dateutil.parser.parse(disposal["CreatedTimestampUtc"]).date()
-
-                    if dateperiod[0] < d < dateperiod[1]:
-                        cgtEventCount = len(finYearsDict[dateperiod[1].year][crypto].keys())+1 #find the number of keys in the year and then currency combo
-                        finYearsDict[dateperiod[1].year][crypto]["CGTevent"+str(cgtEventCount)] = {"taxableIncome":taxableIncome, "date": disposal["CreatedTimestampUtc"]}
-
+###############################################################################################################                 
+        
+        #put cgtGainsNoDiscount into tax year buckets
+        for item in cgtGainsNoDiscount:
+            d = self._convertToDateTime(item["DisposalTimeStampUtc"]).date()
+            for dateperiod in finYears:
+                if dateperiod[0] < d < dateperiod[1]:
+                    finYearsDict2[dateperiod[1].year]["cgtGainsNoDiscount"]["cgtEvents"].append(item)
+        
+        
+        #put cgtGainsDiscount into tax year buckets    
+        for item in cgtGainsDiscount:
+            d = self._convertToDateTime(item["DisposalTimeStampUtc"]).date()
+            for dateperiod in finYears:
+                if dateperiod[0] < d < dateperiod[1]:
+                    finYearsDict2[dateperiod[1].year]["cgtGainsDiscount"]["cgtEvents"].append(item)
+                    
+        
+        #put cgtLosses into tax year buckets          
+        for item in cgtLosses:
+            d = self._convertToDateTime(item["DisposalTimeStampUtc"]).date()
+            for dateperiod in finYears:
+                if dateperiod[0] < d < dateperiod[1]:
+                    finYearsDict2[dateperiod[1].year]["cgtLosses"]["cgtEvents"].append(item)
+                    
+        #calculate the taxable income or the tax losses for each tax year
+        for taxYear in finYearsDict2: #loop through tax years
+            tempDictYearCalc = {} #this is used to keep track of each cgt bucket total i.e. cgtNodiscount, cgtDiscount, cgtLosses
+            for cgtBucket in finYearsDict2[taxYear]: #loop through the CGT types (buckets) i.e. cgtNodiscount, cgtDiscount, cgtLosses
+                tempCGTtotals = 0  #use a variable to accumulate totals for cgt buckets 
+                if finYearsDict2[taxYear][cgtBucket]["cgtEvents"]:
+                    for cgtEvent in finYearsDict2[taxYear][cgtBucket]["cgtEvents"]:
+                            tempCGTtotals += cgtEvent["gainOrloss"]
+                
+                finYearsDict2[taxYear][cgtBucket]["total"]= tempCGTtotals #append cgtBucket total to each bucket
+                tempDictYearCalc[cgtBucket] = tempCGTtotals #append to temp dictionary to calculate the overall tax for each year
+            
+            #calling the function "calculateTotalTaxYear" to calculate the overall tax for each year taking into account losses and discounts
+            finYearsDict2[taxYear]["IncomeTaxOrLoss"] = self._calculateTotalTaxYearCGT(tempDictYearCalc["cgtLosses"],tempDictYearCalc["cgtGainsNoDiscount"],tempDictYearCalc["cgtGainsDiscount"], taxDiscountRate)
+        
+                        
+        #print("finYearDict",finYearsDict2)
+        #print("###############################################")
+            
+        #print("cgtgainsnodiscount")
+        #print(cgtGainsNoDiscount,"\n")
+        #print("cgtgaindiscount")
+        #print(cgtGainsDiscount,"\n")
+        #print("cgtlosses")
+        #print(cgtLosses,"\n")
+        #print("cumcgtGainsNoDiscount",cumcgtGainsNoDiscount)
+        #print("cgtGainsDiscount",cumcgtGainsDiscount)
+        #print("cgtLosses",cumcgtLosses)
                 #taxableIncomeList[crypto]["CGTevent"+str(cgtEventCount)] = {"taxableIncome":taxableIncome, "date": disposal["CreatedTimestampUtc"]}
 
-                #adding financial years
-                #d = dateutil.parser.parse(taxableIncomeList[crypto]["CGTevent"+str(cgtEventCount)]["date"])
-                #d = d.date()
-
-                #for years in finYears:
-                    #if years[0] < d < years[1]:
-                        #taxableIncomeList[crypto]["CGTevent"+str(cgtEventCount)]["FY"] = years[1].isoformat()
-
-        #add cummulative and crypto totals
-        #cummulativeTotal = 0
-        #for crypto in taxableIncomeList:
-            #total = 0
-            #for CGTevent in taxableIncomeList[crypto]:
-                #total += taxableIncomeList[crypto][CGTevent]["taxableIncome"]
-                #cummulativeTotal += taxableIncomeList[crypto][CGTevent]["taxableIncome"]
-
-            #taxableIncomeList[crypto]["total"] = total
-        #delete the year is there is no data in any of the cryptos
-
-        #del all empty years and crypto's
-        cryptoCount = len(self._cryptoList)
-
-        for year in list(finYearsDict.keys()):
-            emptyDict = True
-
-            for num,crypto in enumerate(list(finYearsDict[year].keys())):
-                if finYearsDict[year][crypto]:
-                    emptyDict = False
-                else:
-                    del finYearsDict[year][crypto]
-
-                #if we are at the end of the list and its all empty del
-                if num+1 == cryptoCount and emptyDict == True:
-                        del finYearsDict[year]
-
-
-        taxableIncomeJson = {"taxYears":finYearsDict,"taxDiscountRate":taxDiscountRate, "entityType":entityType}
-        #taxableIncomeList["cumulativeTotal"] = cummulativeTotal
-
-
-        for crypto in taxableIncomeJson["taxYears"]:
-            for event in taxableIncomeJson["taxYears"][crypto]:
-                #finYearsDict[taxableIncomeList["taxEvents"][crypto][event]["FY"]]= taxableIncomeList["taxEvents"][crypto][event]
-                pass
-
-        #taxableIncomeList["offers"] = offers
-        #taxableIncomeList["years"] = finYears
-        return taxableIncomeJson
+        return finYearsDict2
 
 if __name__ == "__main__":
     a = Cryptotax()
@@ -392,4 +413,15 @@ CGT – exemptions, rollovers and special topics).
 •• Step 5 – Add up remaining gains (after step 4). This amount is the taxpayer’s net capital
 gain for the year. If there are no remaining gains, add up remaining capital losses (if any),
 carry it forward to offset future gains.
+
+---------------------------------------------------------------------------------------------
+from CA tax book 
+12 month holding period
+115-25(1) asset must be held for a clear 12 months
+
+(TD 2002/10) The ATO’s view is that both the day of acquisition and the day on which the CGT event happens
+must be excluded in reckoning the 12-month period.
+
+So, a period of 365 whole days(or 366 whole days in a leap year) must elapse between the day on which the CGT asset was
+acquired and the day on which the CGT event happens
 """
