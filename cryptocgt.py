@@ -6,6 +6,7 @@ Created on Mon Dec 25 12:30:35 2017
 need to add the Personal Use Asset 10,000 based on costbase
 need to look at converting the currencies go aud
 need to look at how transfers look
+need to implement fees
 need to add the Institution vs Company entity and hence the 50% CGT discount and how to output it(Added)
 """
 
@@ -17,62 +18,6 @@ import calendar
 data = [{
         "AvgPrice":1.0,
         "CreatedTimestampUtc":"2013-08-05T06:42:11.3032208Z",
-        "FeePercent":0.005,
-        "OrderGuid":"5c8885cd-5384-4e05-b397-9f5119353e10",
-        "OrderType":"MarketBid",
-        "Outstanding":0,
-        "Price":"null",
-        "PrimaryCurrencyCode":"Xbt",
-        "SecondaryCurrencyCode":"Usd",
-        "Status":"Filled",
-        "Value":17.47,
-        "Volume":5.00000000
-        },
-        {
-        "AvgPrice":1.0,
-        "CreatedTimestampUtc":"2013-08-03T18:33:55.4327861Z",
-        "FeePercent":0.005,
-        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
-        "OrderType":"LimitBid",
-        "Outstanding":0.5,
-        "Price":700,
-        "PrimaryCurrencyCode":"Xbt",
-        "SecondaryCurrencyCode":"Usd",
-        "Status":"PartiallyFilledAndCancelled",
-        "Value":1050,
-        "Volume":4.00000000
-        },
-        {
-        "AvgPrice":2.0,
-        "CreatedTimestampUtc":"2015-08-01T18:33:55.4327861Z",
-        "FeePercent":0.005,
-        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
-        "OrderType":"LimitOffer",
-        "Outstanding":0.5,
-        "Price":700,
-        "PrimaryCurrencyCode":"Xbt",
-        "SecondaryCurrencyCode":"Usd",
-        "Status":"PartiallyFilledAndCancelled",
-        "Value":1050,
-        "Volume":6.00000000
-        },
-        {
-        "AvgPrice":2.0,
-        "CreatedTimestampUtc":"2015-08-11T18:33:55.4327861Z",
-        "FeePercent":0.005,
-        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
-        "OrderType":"LimitOffer",
-        "Outstanding":0.5,
-        "Price":700,
-        "PrimaryCurrencyCode":"Xbt",
-        "SecondaryCurrencyCode":"Usd",
-        "Status":"PartiallyFilledAndCancelled",
-        "Value":1050,
-        "Volume":2.00000000
-        },
-        {
-        "AvgPrice":1.0,
-        "CreatedTimestampUtc":"2015-08-05T06:42:11.3032208Z",
         "FeePercent":0.005,
         "OrderGuid":"5c8885cd-5384-4e05-b397-9f5119353e10",
         "OrderType":"MarketBid",
@@ -228,6 +173,7 @@ class Cryptotax():
     def _calculateTotalTaxYearCGT(self, losses, gainsNoDiscount, gainsDiscount, discountRate):
         #formula used to calculate CGT gains after losses and eligible discounts
         
+        losses = abs(losses) *-1
         if gainsNoDiscount + gainsDiscount < losses:#if losses greater than all my gains
             return gainsDiscount + (gainsNoDiscount - losses)
         elif gainsNoDiscount >= losses: #if gainsNoDiscount cover all losses offset only them
@@ -295,6 +241,7 @@ class Cryptotax():
                 dateSold = self._convertToDateTime(disposal["CreatedTimestampUtc"])
                 #print(dateSold)
                 
+                #calculate the gainOrloss for each item in the tempCostbaseList which makes up the amount of crypto sold
                 for tempAcquisition in tempCostbaseList:
                     dateBought = self._convertToDateTime(tempAcquisition["CreatedTimestampUtc"])
                     
