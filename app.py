@@ -7,10 +7,12 @@ import uuid
 import os
 from functools import wraps
 import wrapt
+from flask_cors import CORS
 
 cgtcalculator = Cryptotax()
 
 app = Flask(__name__)
+CORS(app)
 app.config["SECRET_KEY"] = 'aefaf674ac254f8ca6c1b6a73880aa55'
 try:
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]

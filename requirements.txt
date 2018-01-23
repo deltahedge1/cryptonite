@@ -7,3 +7,4 @@ python-dateutil
 uuid
 psycopg2
 wrapt
+flask-cors
