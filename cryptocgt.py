@@ -34,18 +34,32 @@ data = [{
         "CreatedTimestampUtc":"2013-08-03T18:33:55.4327861Z",
         "FeePercent":0.005,
         "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
-        "OrderType":"LimitBid",
+        "OrderType":"LimitOffer",
         "Outstanding":0.5,
         "Price":700,
         "PrimaryCurrencyCode":"Xbt",
         "SecondaryCurrencyCode":"Usd",
         "Status":"PartiallyFilledAndCancelled",
         "Value":1050,
-        "Volume":4.00000000
+        "Volume":5.00000000
         },
         {
-        "AvgPrice":2.0,
-        "CreatedTimestampUtc":"2015-08-01T18:33:55.4327861Z",
+        "AvgPrice":1.0,
+        "CreatedTimestampUtc":"2013-08-05T06:42:11.3032208Z",
+        "FeePercent":0.005,
+        "OrderGuid":"5c8885cd-5384-4e05-b397-9f5119353e10",
+        "OrderType":"MarketBid",
+        "Outstanding":0,
+        "Price":"null",
+        "PrimaryCurrencyCode":"Xbt",
+        "SecondaryCurrencyCode":"Usd",
+        "Status":"Filled",
+        "Value":17.47,
+        "Volume":5.00000000
+        },
+        {
+        "AvgPrice":1.0,
+        "CreatedTimestampUtc":"2013-08-03T18:33:55.4327861Z",
         "FeePercent":0.005,
         "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
         "OrderType":"LimitOffer",
@@ -55,21 +69,7 @@ data = [{
         "SecondaryCurrencyCode":"Usd",
         "Status":"PartiallyFilledAndCancelled",
         "Value":1050,
-        "Volume":6.00000000
-        },
-        {
-        "AvgPrice":2.0,
-        "CreatedTimestampUtc":"2015-08-11T18:33:55.4327861Z",
-        "FeePercent":0.005,
-        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
-        "OrderType":"LimitOffer",
-        "Outstanding":0.5,
-        "Price":700,
-        "PrimaryCurrencyCode":"Xbt",
-        "SecondaryCurrencyCode":"Usd",
-        "Status":"PartiallyFilledAndCancelled",
-        "Value":1050,
-        "Volume":2.00000000
+        "Volume":5.00000000
         }]
 
 #create list for Xbt, Eth, Bch
@@ -99,7 +99,7 @@ class Cryptotax():
 
     def _TimeSort(self, data):
         #sorts the list of dictionaries by date
-        return sorted(data,key=lambda d: d["DisposalTimeStampUtc"])
+        return sorted(data,key=lambda d: d["DisposalTimestampUtc"])
 
 
     def _filteredForFilledOrdersAndTimeSort(self, data):
@@ -257,33 +257,37 @@ class Cryptotax():
                         discountDaysRequired = 366
 
                     #check if it is a gain or loss for each parcel of the cost base that makes up the cgt event and add the crypto and gainorloss
-                    gainOrloss = tempAcquisition["Volume"]*disposal["AvgPrice"]-tempAcquisition["Volume"]*tempAcquisition["AvgPrice"]
-                    tempAcquisition["gainOrloss"] = gainOrloss
+                    gainOrLoss = tempAcquisition["Volume"]*disposal["AvgPrice"]-tempAcquisition["Volume"]*tempAcquisition["AvgPrice"]
+                    tempAcquisition["gainOrLoss"] = gainOrLoss
                     tempAcquisition["PrimaryCurrencyCode"]= crypto
-                    tempAcquisition["DisposalTimeStampUtc"] = disposal["CreatedTimestampUtc"]
+                    tempAcquisition["DisposalTimestampUtc"] = disposal["CreatedTimestampUtc"]
 
                     #check if there is a loss event or if not if it is eligible for the cgt discount and put in respective lists btw cgtLoss, cgtGainDiscount, cgtGainNoDiscount
-                    if gainOrloss <0:
+                    if gainOrLoss <0:
                         cgtLosses.append(tempAcquisition)
-                        cumcgtLosses += gainOrloss
+                        cumcgtLosses += gainOrLoss
                     elif (dateSold - dateBought).days > discountDaysRequired:
                         cgtGainsDiscount.append(tempAcquisition)
-                        cumcgtGainsDiscount += gainOrloss
+                        cumcgtGainsDiscount += gainOrLoss
                     else:
                         cgtGainsNoDiscount.append(tempAcquisition)
-                        cumcgtGainsNoDiscount += gainOrloss
+                        cumcgtGainsNoDiscount += gainOrLoss
 
                 #delete the bid which I have used
                 del bids[crypto][:count-1]
 
                 #change the bids volume in original list to match the difference in the tempCostBaseList
-                bids[crypto][0]["Volume"] = cumDisposalVolume - disposal["Volume"]
+                if cumDisposalVolume - disposal["Volume"] !=0:
+                    bids[crypto][0]["Volume"] = cumDisposalVolume - disposal["Volume"]
+                else:
+                   del  bids[crypto][0]
+                
 ###############################################################################################################
 ###############################################################################################################
 
         #put cgtGainsNoDiscount into tax year buckets
         for item in cgtGainsNoDiscount:
-            d = self._convertToDateTime(item["DisposalTimeStampUtc"]).date()
+            d = self._convertToDateTime(item["DisposalTimestampUtc"]).date()
             for dateperiod in finYears:
                 if dateperiod[0] < d < dateperiod[1]:
                     finYearsDict2[dateperiod[1].year]["cgtGainsNoDiscount"]["cgtEvents"].append(item)
@@ -291,7 +295,7 @@ class Cryptotax():
 
         #put cgtGainsDiscount into tax year buckets
         for item in cgtGainsDiscount:
-            d = self._convertToDateTime(item["DisposalTimeStampUtc"]).date()
+            d = self._convertToDateTime(item["DisposalTimestampUtc"]).date()
             for dateperiod in finYears:
                 if dateperiod[0] < d < dateperiod[1]:
                     finYearsDict2[dateperiod[1].year]["cgtGainsDiscount"]["cgtEvents"].append(item)
@@ -299,7 +303,7 @@ class Cryptotax():
 
         #put cgtLosses into tax year buckets
         for item in cgtLosses:
-            d = self._convertToDateTime(item["DisposalTimeStampUtc"]).date()
+            d = self._convertToDateTime(item["DisposalTimestampUtc"]).date()
             for dateperiod in finYears:
                 if dateperiod[0] < d < dateperiod[1]:
                     finYearsDict2[dateperiod[1].year]["cgtLosses"]["cgtEvents"].append(item)
@@ -311,7 +315,7 @@ class Cryptotax():
                 tempCGTtotals = 0  #use a variable to accumulate totals for cgt buckets
                 if finYearsDict2[taxYear][cgtBucket]["cgtEvents"]:
                     for cgtEvent in finYearsDict2[taxYear][cgtBucket]["cgtEvents"]:
-                            tempCGTtotals += cgtEvent["gainOrloss"]
+                            tempCGTtotals += cgtEvent["gainOrLoss"]
 
                 finYearsDict2[taxYear][cgtBucket]["total"]= tempCGTtotals #append cgtBucket total to each bucket
                 tempDictYearCalc[cgtBucket] = tempCGTtotals #append to temp dictionary to calculate the overall tax for each year
