@@ -80,10 +80,10 @@ class Cryptotax():
     __author__ = "Ish Hassan"
     __description__ = "calculating the CGT tax for independent reserve by using the FIFO method | offers = Investor selling a crypto | bid = Investor buying a crypto"
 
-    
+
     taxDiscountsDict = {"individual":0.5, "trust":0.5, "fund": 2/3, "SMSF":2/3, "company":1}
-    
-    
+
+
     def getEntityTypes(self):
         #get valid entity types to put in to calculation
         return(list(self.taxDiscountsDict.keys()))
@@ -92,15 +92,15 @@ class Cryptotax():
     def _convertToDateTime(self,date):
         #convert to datetime format
         return dateutil.parser.parse(date)
-    
+
     def _convertToDateIso(self,date):
         #convert dates to ISO format
         return date.isoformat()
-    
+
     def _TimeSort(self, data):
         #sorts the list of dictionaries by date
         return sorted(data,key=lambda d: d["DisposalTimeStampUtc"])
-            
+
 
     def _filteredForFilledOrdersAndTimeSort(self, data):
         #filter for only Filled orders and then sort based on date
@@ -160,7 +160,7 @@ class Cryptotax():
             for item in data[crypto]:
                 d = dateutil.parser.parse(item["CreatedTimestampUtc"])
                 yearList.append(d.date().year)
-        
+
         minYear = min(yearList)
         maxYear = max(yearList)
 
@@ -169,10 +169,10 @@ class Cryptotax():
         yearList.append([datetime.date(maxYear,7,1),datetime.date(maxYear+1,6,30)])
 
         return yearList
-    
+
     def _calculateTotalTaxYearCGT(self, losses, gainsNoDiscount, gainsDiscount, discountRate):
         #formula used to calculate CGT gains after losses and eligible discounts
-        
+
         losses = abs(losses) *-1
         if gainsNoDiscount + gainsDiscount < losses:#if losses greater than all my gains
             return gainsDiscount + (gainsNoDiscount - losses)
@@ -183,8 +183,8 @@ class Cryptotax():
                 return gainsDiscount + (gainsNoDiscount - losses)
             elif gainsDiscount >= gainsNoDiscount - losses: #gainsDiscount are able to cover leftover lossess
                 return (gainsDiscount + (gainsNoDiscount - losses))*discountRate
-        
-        
+
+
     def calculateCGT(self, data, entityType="individual", previousLosses=0, CGTNoDiscountGains=0,discountedCGTGains=0):
         #calculates CGT and returns for each CGT event per crypto
         self._data = data
@@ -194,31 +194,36 @@ class Cryptotax():
         self._cryptoList = self._uniqueCurrencies(data)
         offers = self._offersList(data)
         bids = self._bidsList(data)
-        
+
+
+        entityType = entityType.lower()
+        if entityType == "smsf":
+            entityType = entityType.upper()
+
         taxDiscountRate = self.taxDiscountsDict[entityType]
         #print("offers",offers)
         #print("bids",bids)
-        
-        
+
+
         #this is to get finYears array like so {2015:{"cgtEvents":[]}, 2016:{"cgtEvents":[]}}
         finYears = self._getFinYears(offers)
-        finYearsDict2 = {i[1].year:{"cgtGainsNoDiscount":{"cgtEvents":[]},"cgtGainsDiscount":{"cgtEvents":[]},"cgtLosses":{"cgtEvents":[]}} for i in finYears} 
+        finYearsDict2 = {i[1].year:{"cgtGainsNoDiscount":{"cgtEvents":[]},"cgtGainsDiscount":{"cgtEvents":[]},"cgtLosses":{"cgtEvents":[]}} for i in finYears}
         #print(finYearsDict)
-        
-        
+
+
 ###############################################################################################################
 ###############################################################################################################
-        
+
         #initalise all the transactions that I will use to calculate income tax
         cgtGainsNoDiscount = []
         cgtGainsDiscount = []
         cgtLosses = []
-        
+
         cumcgtGainsNoDiscount = 0
         cumcgtGainsDiscount = 0
         cumcgtLosses = 0
-        
-        for crypto in offers:   
+
+        for crypto in offers:
 
             for disposal in offers[crypto]:
 
@@ -230,33 +235,33 @@ class Cryptotax():
 
                     cumDisposalVolume += bids[crypto][count]["Volume"]
                     tempCostbaseList.append(dict(bids[crypto][count]))
-                    
+
                     count += 1
-                    
+
                 #adjust Volume to accomodate the change in the last volume
                 if cumDisposalVolume > disposal["Volume"]:
                     tempCostbaseList[len(tempCostbaseList)-1]["Volume"] = bids[crypto][len(tempCostbaseList)-1]["Volume"]-(cumDisposalVolume - disposal["Volume"]) #reduce the volume of last point in temp to match disposal volume
-                
+
                 #print(tempCostbaseList)
                 dateSold = self._convertToDateTime(disposal["CreatedTimestampUtc"])
                 #print(dateSold)
-                
+
                 #calculate the gainOrloss for each item in the tempCostbaseList which makes up the amount of crypto sold
                 for tempAcquisition in tempCostbaseList:
                     dateBought = self._convertToDateTime(tempAcquisition["CreatedTimestampUtc"])
-                    
+
                     #how many days required to be eligible for discount depends on leap years
                     if calendar.isleap(dateBought.year) == True:
                         discountDaysRequired = 367
                     else:
                         discountDaysRequired = 366
-                    
+
                     #check if it is a gain or loss for each parcel of the cost base that makes up the cgt event and add the crypto and gainorloss
                     gainOrloss = tempAcquisition["Volume"]*disposal["AvgPrice"]-tempAcquisition["Volume"]*tempAcquisition["AvgPrice"]
                     tempAcquisition["gainOrloss"] = gainOrloss
                     tempAcquisition["PrimaryCurrencyCode"]= crypto
                     tempAcquisition["DisposalTimeStampUtc"] = disposal["CreatedTimestampUtc"]
-                    
+
                     #check if there is a loss event or if not if it is eligible for the cgt discount and put in respective lists btw cgtLoss, cgtGainDiscount, cgtGainNoDiscount
                     if gainOrloss <0:
                         cgtLosses.append(tempAcquisition)
@@ -267,57 +272,57 @@ class Cryptotax():
                     else:
                         cgtGainsNoDiscount.append(tempAcquisition)
                         cumcgtGainsNoDiscount += gainOrloss
-    
+
                 #delete the bid which I have used
                 del bids[crypto][:count-1]
-                
+
                 #change the bids volume in original list to match the difference in the tempCostBaseList
-                bids[crypto][0]["Volume"] = cumDisposalVolume - disposal["Volume"] 
-###############################################################################################################                    
-###############################################################################################################                 
-        
+                bids[crypto][0]["Volume"] = cumDisposalVolume - disposal["Volume"]
+###############################################################################################################
+###############################################################################################################
+
         #put cgtGainsNoDiscount into tax year buckets
         for item in cgtGainsNoDiscount:
             d = self._convertToDateTime(item["DisposalTimeStampUtc"]).date()
             for dateperiod in finYears:
                 if dateperiod[0] < d < dateperiod[1]:
                     finYearsDict2[dateperiod[1].year]["cgtGainsNoDiscount"]["cgtEvents"].append(item)
-        
-        
-        #put cgtGainsDiscount into tax year buckets    
+
+
+        #put cgtGainsDiscount into tax year buckets
         for item in cgtGainsDiscount:
             d = self._convertToDateTime(item["DisposalTimeStampUtc"]).date()
             for dateperiod in finYears:
                 if dateperiod[0] < d < dateperiod[1]:
                     finYearsDict2[dateperiod[1].year]["cgtGainsDiscount"]["cgtEvents"].append(item)
-                    
-        
-        #put cgtLosses into tax year buckets          
+
+
+        #put cgtLosses into tax year buckets
         for item in cgtLosses:
             d = self._convertToDateTime(item["DisposalTimeStampUtc"]).date()
             for dateperiod in finYears:
                 if dateperiod[0] < d < dateperiod[1]:
                     finYearsDict2[dateperiod[1].year]["cgtLosses"]["cgtEvents"].append(item)
-                    
+
         #calculate the taxable income or the tax losses for each tax year
         for taxYear in finYearsDict2: #loop through tax years
             tempDictYearCalc = {} #this is used to keep track of each cgt bucket total i.e. cgtNodiscount, cgtDiscount, cgtLosses
             for cgtBucket in finYearsDict2[taxYear]: #loop through the CGT types (buckets) i.e. cgtNodiscount, cgtDiscount, cgtLosses
-                tempCGTtotals = 0  #use a variable to accumulate totals for cgt buckets 
+                tempCGTtotals = 0  #use a variable to accumulate totals for cgt buckets
                 if finYearsDict2[taxYear][cgtBucket]["cgtEvents"]:
                     for cgtEvent in finYearsDict2[taxYear][cgtBucket]["cgtEvents"]:
                             tempCGTtotals += cgtEvent["gainOrloss"]
-                
+
                 finYearsDict2[taxYear][cgtBucket]["total"]= tempCGTtotals #append cgtBucket total to each bucket
                 tempDictYearCalc[cgtBucket] = tempCGTtotals #append to temp dictionary to calculate the overall tax for each year
-            
+
             #calling the function "calculateTotalTaxYear" to calculate the overall tax for each year taking into account losses and discounts
             finYearsDict2[taxYear]["IncomeTaxOrLoss"] = self._calculateTotalTaxYearCGT(tempDictYearCalc["cgtLosses"],tempDictYearCalc["cgtGainsNoDiscount"],tempDictYearCalc["cgtGainsDiscount"], taxDiscountRate)
-        
-                        
+
+
         #print("finYearDict",finYearsDict2)
         #print("###############################################")
-            
+
         #print("cgtgainsnodiscount")
         #print(cgtGainsNoDiscount,"\n")
         #print("cgtgaindiscount")
@@ -328,8 +333,12 @@ class Cryptotax():
         #print("cgtGainsDiscount",cumcgtGainsDiscount)
         #print("cgtLosses",cumcgtLosses)
                 #taxableIncomeList[crypto]["CGTevent"+str(cgtEventCount)] = {"taxableIncome":taxableIncome, "date": disposal["CreatedTimestampUtc"]}
+            #finYearsDict2["entityType"] = entityType
 
-        return finYearsDict2
+        responseJson = {}
+        responseJson["taxYear"] = finYearsDict2
+        responseJson["entityType"] = entityType
+        return responseJson
 
 if __name__ == "__main__":
     a = Cryptotax()
@@ -362,7 +371,7 @@ gain for the year. If there are no remaining gains, add up remaining capital los
 carry it forward to offset future gains.
 
 ---------------------------------------------------------------------------------------------
-from CA tax book 
+from CA tax book
 12 month holding period
 115-25(1) asset must be held for a clear 12 months
 
