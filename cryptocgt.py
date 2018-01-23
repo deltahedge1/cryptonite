@@ -31,20 +31,6 @@ data = [{
         },
         {
         "AvgPrice":1.0,
-        "CreatedTimestampUtc":"2013-08-03T18:33:55.4327861Z",
-        "FeePercent":0.005,
-        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
-        "OrderType":"LimitOffer",
-        "Outstanding":0.5,
-        "Price":700,
-        "PrimaryCurrencyCode":"Xbt",
-        "SecondaryCurrencyCode":"Usd",
-        "Status":"PartiallyFilledAndCancelled",
-        "Value":1050,
-        "Volume":5.00000000
-        },
-        {
-        "AvgPrice":1.0,
         "CreatedTimestampUtc":"2013-08-05T06:42:11.3032208Z",
         "FeePercent":0.005,
         "OrderGuid":"5c8885cd-5384-4e05-b397-9f5119353e10",
@@ -58,7 +44,7 @@ data = [{
         "Volume":5.00000000
         },
         {
-        "AvgPrice":1.0,
+        "AvgPrice":2.0,
         "CreatedTimestampUtc":"2013-08-03T18:33:55.4327861Z",
         "FeePercent":0.005,
         "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
@@ -69,7 +55,7 @@ data = [{
         "SecondaryCurrencyCode":"Usd",
         "Status":"PartiallyFilledAndCancelled",
         "Value":1050,
-        "Volume":5.00000000
+        "Volume":6.00000000
         }]
 
 #create list for Xbt, Eth, Bch
@@ -195,7 +181,7 @@ class Cryptotax():
         offers = self._offersList(data)
         bids = self._bidsList(data)
 
-
+        #error checking for entity type lower it unless SMSF
         entityType = entityType.lower()
         if entityType == "smsf":
             entityType = entityType.upper()
@@ -261,7 +247,7 @@ class Cryptotax():
                     tempAcquisition["gainOrLoss"] = gainOrLoss
                     tempAcquisition["PrimaryCurrencyCode"]= crypto
                     tempAcquisition["DisposalTimestampUtc"] = disposal["CreatedTimestampUtc"]
-
+                    tempAcquisition["OfferAvgPrice"]= disposal["AvgPrice"]
                     #check if there is a loss event or if not if it is eligible for the cgt discount and put in respective lists btw cgtLoss, cgtGainDiscount, cgtGainNoDiscount
                     if gainOrLoss <0:
                         cgtLosses.append(tempAcquisition)
