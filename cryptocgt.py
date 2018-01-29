@@ -4,7 +4,7 @@ Created on Mon Dec 25 12:30:35 2017
 
 @author: ihassan1
 need to add the Personal Use Asset 10,000 based on costbase
-need to look at converting the currencies go aud
+need to look at converting the currencies to aud
 need to look at how transfers look
 need to implement fees
 need to add the Institution vs Company entity and hence the 50% CGT discount and how to output it(Added)
@@ -13,11 +13,12 @@ need to add the Institution vs Company entity and hence the 50% CGT discount and
 import dateutil.parser
 import datetime
 import calendar
-
+import requests
+import json
 
 data = [{
         "AvgPrice":1.0,
-        "CreatedTimestampUtc":"2013-08-05T06:42:11.3032208Z",
+        "CreatedTimestampUtc":"2015-08-04T06:42:11.3032208Z",
         "FeePercent":0.005,
         "OrderGuid":"5c8885cd-5384-4e05-b397-9f5119353e10",
         "OrderType":"MarketBid",
@@ -27,25 +28,39 @@ data = [{
         "SecondaryCurrencyCode":"Usd",
         "Status":"Filled",
         "Value":17.47,
-        "Volume":5.00000000
+        "Volume":1.00000000
         },
         {
         "AvgPrice":1.0,
-        "CreatedTimestampUtc":"2013-08-05T06:42:11.3032208Z",
+        "CreatedTimestampUtc":"2015-08-05T06:42:11.3032208Z",
         "FeePercent":0.005,
         "OrderGuid":"5c8885cd-5384-4e05-b397-9f5119353e10",
         "OrderType":"MarketBid",
         "Outstanding":0,
         "Price":"null",
         "PrimaryCurrencyCode":"Xbt",
-        "SecondaryCurrencyCode":"Usd",
+        "SecondaryCurrencyCode":"Aud",
         "Status":"Filled",
         "Value":17.47,
-        "Volume":5.00000000
+        "Volume":2.00000000
+        },
+        {
+        "AvgPrice":1.0,
+        "CreatedTimestampUtc":"2015-08-06T06:42:11.3032208Z",
+        "FeePercent":0.005,
+        "OrderGuid":"5c8885cd-5384-4e05-b397-9f5119353e10",
+        "OrderType":"MarketBid",
+        "Outstanding":0,
+        "Price":"null",
+        "PrimaryCurrencyCode":"Xbt",
+        "SecondaryCurrencyCode":"Aud",
+        "Status":"Filled",
+        "Value":17.47,
+        "Volume":1.00000000
         },
         {
         "AvgPrice":2.0,
-        "CreatedTimestampUtc":"2013-08-03T18:33:55.4327861Z",
+        "CreatedTimestampUtc":"2015-08-03T18:33:55.4327861Z",
         "FeePercent":0.005,
         "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
         "OrderType":"LimitOffer",
@@ -55,7 +70,21 @@ data = [{
         "SecondaryCurrencyCode":"Usd",
         "Status":"PartiallyFilledAndCancelled",
         "Value":1050,
-        "Volume":6.00000000
+        "Volume":2.00000000
+        },
+        {
+        "AvgPrice":2.0,
+        "CreatedTimestampUtc":"2015-08-03T18:33:55.4327861Z",
+        "FeePercent":0.005,
+        "OrderGuid":"719c495c-a39e-4884-93ac-280b37245037",
+        "OrderType":"LimitOffer",
+        "Outstanding":0.5,
+        "Price":700,
+        "PrimaryCurrencyCode":"Xbt",
+        "SecondaryCurrencyCode":"Aud",
+        "Status":"PartiallyFilledAndCancelled",
+        "Value":1050,
+        "Volume":1.00000000
         }]
 
 #create list for Xbt, Eth, Bch
@@ -69,6 +98,33 @@ class Cryptotax():
 
     taxDiscountsDict = {"individual":0.5, "trust":0.5, "fund": 2/3, "SMSF":2/3, "company":1}
 
+    def convertFX(self, date, foreign_currency, base_currency="AUD"):
+        #reference for api docs http://fixer.io/
+        #used the datetime iso format
+        foreign_currency = foreign_currency.upper()
+
+        if base_currency:
+            base_currency = base_currency.upper()
+
+        #convert to datetime
+        #date = self._convertToDateTime(date)
+
+        #convert to format "2012-12-01"
+        date = date.strftime("%Y-%m-%d")
+        #convert FX rates using
+        url = "https://api.fixer.io/{0}?base={1}&symbols={2}".format(date, base_currency, foreign_currency)
+
+        i = 0
+        while True:
+            r = requests.get(url)
+            i += 1
+            if r.status_code == 200 or i == 20:
+                break
+            else:
+                return ("error in FX api")
+        
+        response = json.loads(r.text) #'{"base":"USD","date":"2013-08-05","rates":{"AUD":1.1247}}'
+        return  float(response["rates"][foreign_currency])
 
     def getEntityTypes(self):
         #get valid entity types to put in to calculation
@@ -88,8 +144,8 @@ class Cryptotax():
         return sorted(data,key=lambda d: d["DisposalTimestampUtc"])
 
 
-    def _filteredForFilledOrdersAndTimeSort(self, data):
-        #filter for only Filled orders and then sort based on date
+    def _filteredForFilledOrdersAndTimeSortAndConvertFX(self, data):
+        #filter for only Filled orders, then convert FX and then sort based on date
 
         self._tempData = []
         filledStatusList = ["Filled","PartiallyFilledAndCancelled","PartiallyFilled","PartiallyFilledAndExpired"]
@@ -98,6 +154,12 @@ class Cryptotax():
             #if item['Status'] == "Filled" or "PartiallyFilledAndCancelled" or "PartiallyFilled" or "PartiallyFilledAndExpired": #check if order if filled or paritally filled
             if item['Status'] in filledStatusList:
                 item["CreatedTimestampUtc"] = dateutil.parser.parse(item["CreatedTimestampUtc"])  #convert to datetime
+                
+                #convert foreign curreny to AUD
+                if item["SecondaryCurrencyCode"].upper() != "AUD":
+                    item["AvgPriceFx"] = item["AvgPrice"]
+                    item["AvgPrice"] = item["AvgPrice"]/self.convertFX(item["CreatedTimestampUtc"], item["SecondaryCurrencyCode"].upper())
+
                 self._tempData.append(item)
 
         self._tempData = sorted(self._tempData, key=lambda k: k['CreatedTimestampUtc']) #sorting times
@@ -105,6 +167,7 @@ class Cryptotax():
         for item in self._tempData:
             item["CreatedTimestampUtc"] = item["CreatedTimestampUtc"].isoformat() #converting datetime objects to iso 8061 again
 
+        #print(self._tempData)
         return(self._tempData)
 
 
@@ -174,7 +237,7 @@ class Cryptotax():
     def calculateCGT(self, data, entityType="individual", previousLosses=0, CGTNoDiscountGains=0,discountedCGTGains=0):
         #calculates CGT and returns for each CGT event per crypto
         self._data = data
-        self._data = self._filteredForFilledOrdersAndTimeSort(self._data)
+        self._data = self._filteredForFilledOrdersAndTimeSortAndConvertFX(self._data)
 
         #initialise the crypto currencies in portfolio, the offers, and bids
         self._cryptoList = self._uniqueCurrencies(data)
@@ -190,6 +253,7 @@ class Cryptotax():
         #print("offers",offers)
         #print("bids",bids)
 
+        personalUseAsset = True
 
         #this is to get finYears array like so {2015:{"cgtEvents":[]}, 2016:{"cgtEvents":[]}}
         finYears = self._getFinYears(offers)
@@ -267,7 +331,7 @@ class Cryptotax():
                     bids[crypto][0]["Volume"] = cumDisposalVolume - disposal["Volume"]
                 else:
                    del  bids[crypto][0]
-                
+
 ###############################################################################################################
 ###############################################################################################################
 
@@ -303,7 +367,7 @@ class Cryptotax():
                     for cgtEvent in finYearsDict2[taxYear][cgtBucket]["cgtEvents"]:
                             tempCGTtotals += cgtEvent["gainOrLoss"]
 
-                finYearsDict2[taxYear][cgtBucket]["total"]= tempCGTtotals #append cgtBucket total to each bucket
+                finYearsDict2[taxYear][cgtBucket]["subTotal"]= tempCGTtotals #append cgtBucket total to each bucket
                 tempDictYearCalc[cgtBucket] = tempCGTtotals #append to temp dictionary to calculate the overall tax for each year
 
             #calling the function "calculateTotalTaxYear" to calculate the overall tax for each year taking into account losses and discounts
