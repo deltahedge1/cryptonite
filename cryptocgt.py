@@ -122,7 +122,7 @@ class Cryptotax():
                 break
             else:
                 return ("error in FX api")
-        
+
         response = json.loads(r.text) #'{"base":"USD","date":"2013-08-05","rates":{"AUD":1.1247}}'
         return  float(response["rates"][foreign_currency])
 
@@ -154,12 +154,12 @@ class Cryptotax():
             #if item['Status'] == "Filled" or "PartiallyFilledAndCancelled" or "PartiallyFilled" or "PartiallyFilledAndExpired": #check if order if filled or paritally filled
             if item['Status'] in filledStatusList:
                 item["CreatedTimestampUtc"] = dateutil.parser.parse(item["CreatedTimestampUtc"])  #convert to datetime
-                
+
                 #convert foreign curreny to AUD
                 if item["SecondaryCurrencyCode"].upper() != "AUD":
                     item["AvgPriceFx"] = item["AvgPrice"]
                     item["AvgPrice"] = item["AvgPrice"]/self.convertFX(item["CreatedTimestampUtc"], item["SecondaryCurrencyCode"].upper())
-
+                
                 self._tempData.append(item)
 
         self._tempData = sorted(self._tempData, key=lambda k: k['CreatedTimestampUtc']) #sorting times
@@ -167,7 +167,6 @@ class Cryptotax():
         for item in self._tempData:
             item["CreatedTimestampUtc"] = item["CreatedTimestampUtc"].isoformat() #converting datetime objects to iso 8061 again
 
-        #print(self._tempData)
         return(self._tempData)
 
 
@@ -184,8 +183,11 @@ class Cryptotax():
         for item in self._data:
             #if item['OrderType'] == "MarketOffer" or item['OrderType']=="LimitOffer": #if transaction is an order
             if item['OrderType'] in offerStatusList:
-                self.offers[item['PrimaryCurrencyCode']].append({"Volume": item['Volume'],"AvgPrice": item['AvgPrice'],"FeePercent": item['FeePercent'],"CreatedTimestampUtc": item['CreatedTimestampUtc']})
-
+                if "AvgPriceFx" in item:
+                    self.offers[item['PrimaryCurrencyCode']].append({"Volume": item['Volume'],"AvgPrice": item['AvgPrice'],"FeePercent": item['FeePercent'],"CreatedTimestampUtc": item['CreatedTimestampUtc'], "SecondaryCurrencyCode": item['SecondaryCurrencyCode'], "AvgPriceFx": item["AvgPriceFx"]})
+                else:
+                    self.offers[item['PrimaryCurrencyCode']].append({"Volume": item['Volume'],"AvgPrice": item['AvgPrice'],"FeePercent": item['FeePercent'],"CreatedTimestampUtc": item['CreatedTimestampUtc'],"SecondaryCurrencyCode": item['SecondaryCurrencyCode']})
+                  
         return self.offers
 
     def _bidsList(self,data):
@@ -195,9 +197,11 @@ class Cryptotax():
 
         for item in self._data:
             if item['OrderType'] in bidsStatusList:
-            #if item['OrderType'] == "MarketBid" or item['OrderType']=="LimitBid": #if transaction is an order
-                self.bids[item['PrimaryCurrencyCode']].append({"Volume": item['Volume'],"AvgPrice": item['AvgPrice'],"FeePercent": item['FeePercent'],"CreatedTimestampUtc": item['CreatedTimestampUtc']})
-
+                if "AvgPriceFx" in item:
+                    self.bids[item['PrimaryCurrencyCode']].append({"Volume": item['Volume'],"AvgPrice": item['AvgPrice'],"FeePercent": item['FeePercent'],"CreatedTimestampUtc": item['CreatedTimestampUtc'],"SecondaryCurrencyCode": item['SecondaryCurrencyCode'], "AvgPriceFx": item["AvgPriceFx"]})
+                else:
+                    self.bids[item['PrimaryCurrencyCode']].append({"Volume": item['Volume'],"AvgPrice": item['AvgPrice'],"FeePercent": item['FeePercent'],"CreatedTimestampUtc": item['CreatedTimestampUtc'], "SecondaryCurrencyCode": item['SecondaryCurrencyCode']})
+        
         return self.bids
 
     def _getFinYears(self, data):
@@ -312,6 +316,13 @@ class Cryptotax():
                     tempAcquisition["PrimaryCurrencyCode"]= crypto
                     tempAcquisition["DisposalTimestampUtc"] = disposal["CreatedTimestampUtc"]
                     tempAcquisition["OfferAvgPrice"]= disposal["AvgPrice"]
+                    tempAcquisition["OfferSecondaryCurrencyCode"] = disposal["SecondaryCurrencyCode"]
+                    
+                    if "AvgPriceFx" in disposal:
+                        tempAcquisition["OfferAvgPriceFx"] = disposal["AvgPriceFx"]
+                        
+                        
+                    #print("somthing",tempAcquisition)
                     #check if there is a loss event or if not if it is eligible for the cgt discount and put in respective lists btw cgtLoss, cgtGainDiscount, cgtGainNoDiscount
                     if gainOrLoss <0:
                         cgtLosses.append(tempAcquisition)
@@ -323,7 +334,7 @@ class Cryptotax():
                         cgtGainsNoDiscount.append(tempAcquisition)
                         cumcgtGainsNoDiscount += gainOrLoss
 
-                #delete the bid which I have used
+                #delete the bids which I have used
                 del bids[crypto][:count-1]
 
                 #change the bids volume in original list to match the difference in the tempCostBaseList
