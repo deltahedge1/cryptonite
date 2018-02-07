@@ -8,31 +8,59 @@ import os
 from functools import wraps
 import wrapt
 from flask_cors import CORS
+from datetime import datetime
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 cgtcalculator = Cryptotax()
 
 app = Flask(__name__)
 CORS(app)
 app.config["SECRET_KEY"] = 'aefaf674ac254f8ca6c1b6a73880aa55'
+
+
+class User(db.Model):
+    #_id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(48), primary_key=True)
+    name = db.Column(db.String(80))
+    email = db.Column(db.String(120), unique=True)
+    password= db.Column(db.String(120))
+
+    def __init__(self, name, email, public_id, password):
+        self.name = name
+        self.email = email
+        self.public_id = public_id
+        self.password = password
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
+
+class Currencyfx(db.Model):
+    __tablename__ = "currencyfx"
+    _id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
+    base = db.Column(db.String(3))
+    foreign = db.Column(db.String(3))
+    fx = db.Column(db.Float())
+
+    def __init__(self, date, base, foreign, fx):
+        self.date = date
+        self.base = base
+        self.foreign = foreign
+        self.fx = fx
+
+    def __repr__(self):
+        return '<_id %r>' % self._id
 try:
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+except:
+    try:
+        app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + os.path.join(basedir, 'app.db')
+    except:
+        pass
+
+try:
     db = SQLAlchemy(app)
-
-    class User(db.Model):
-        #_id = db.Column(db.Integer, primary_key=True)
-        public_id = db.Column(db.String(48), primary_key=True)
-        name = db.Column(db.String(80))
-        email = db.Column(db.String(120), unique=True)
-        password= db.Column(db.String(120))
-
-        def __init__(self, name, email, public_id, password):
-            self.name = name
-            self.email = email
-            self.public_id = public_id
-            self.password = password
-
-        def __repr__(self):
-            return '<Name %r>' % self.name
 except:
     pass
 
@@ -99,7 +127,7 @@ class Cryptonite(Resource):
 
         capturedData =  request.get_json()
         data = capturedData["data"]
-        entityType = capturedData["entityType"]
+        entityType = capturedData["entitytype"]
 
         return(cgtcalculator.calculateCGT(data,entityType))
 
