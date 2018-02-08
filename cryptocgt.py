@@ -7665,6 +7665,8 @@ data = [
     }
 ]
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 class Cryptotax():
     __name__ = "cryptotax"
     __version__ = "1.0"
@@ -7686,7 +7688,7 @@ class Cryptotax():
         date = datetime.datetime(date.year,date.month, date.day)
 
         try:
-            db = sqlite3.connect("currencyfxdb")
+            db = sqlite3.connect(os.path.join(basedir,"currencyfxdb"))
             cur = db.cursor()
             cur.execute('''SELECT fxrate FROM currencyfx WHERE date=? AND foreignfx=?;''', (date,foreign_currency))
             fxrate = cur.fetchone()
