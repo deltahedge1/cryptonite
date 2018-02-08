@@ -7711,10 +7711,14 @@ class Cryptotax():
 
                 response = json.loads(r.text) #'{"base":"USD","date":"2013-08-05","rates":{"AUD":1.1247}}'
                 fxrate = float(response["rates"][foreign_currency])
-                cur.execute(''' INSERT INTO currencyfx (date, fxrate, basefx, foreignfx) VALUES(?,?,?,?)''', (date, fxrate, base_currency, foreign_currency))
-                db.commit()
-
-                return fxrate
+                try:
+                    cur.execute(''' INSERT INTO currencyfx (date, fxrate, basefx, foreignfx) VALUES(?,?,?,?)''', (date, fxrate, base_currency, foreign_currency))
+                    db.commit()
+                    return fxrate
+                except Exception as e:
+                    db.rollback()
+                    return (e)
+                    
             db.close()
 
         except Exception as e:
