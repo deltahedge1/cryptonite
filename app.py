@@ -9,6 +9,8 @@ from functools import wraps
 import wrapt
 from flask_cors import CORS
 from datetime import datetime
+import json
+import requests
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -102,7 +104,9 @@ def login():
 class Test(Resource):
     @token_required
     def get(self):
-        return ({"message":"hello world"})
+        r = requests.get(r"https://api.fixer.io/latest")
+        data = json.loads(r.text)
+        return ({"message":r.text})
 
 class Cryptonite(Resource):
     #class used to calcaulte CGT
