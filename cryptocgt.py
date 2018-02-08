@@ -122,9 +122,11 @@ class Cryptotax():
                     ins = currencyfx_table.insert()
                     add_fx = ins.values(date=date, base="AUD", foreign=foreign_currency, fxrate=fxrate)
                     conn.execute(add_fx)
+                    engine.dispose()
                     return fxrate
                 except Exception as e:
                     #db.rollback()
+                    engine.dispose()
                     print(e)
                     return (e)
 
