@@ -131,7 +131,7 @@ class Cryptotax():
 
         except Exception as e:
             #db.rollback()
-
+            print(e)
 
     def getEntityTypes(self):
         #get valid entity types to put in to calculation
