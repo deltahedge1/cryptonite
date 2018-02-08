@@ -22,9 +22,11 @@ app.config["SECRET_KEY"] = 'aefaf674ac254f8ca6c1b6a73880aa55'
 
 try:
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 except:
     try:
         app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + os.path.join(basedir, 'app.db')
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     except:
         pass
 
