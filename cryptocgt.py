@@ -7712,7 +7712,6 @@ class Cryptotax():
                 cur.execute(''' INSERT INTO currencyfx (date, fxrate, basefx, foreignfx) VALUES(?,?,?,?)''', (date, fxrate, base_currency, foreign_currency))
                 db.commit()
 
-                print(fxrate)
                 return fxrate
             db.close()
 
@@ -7818,10 +7817,10 @@ class Cryptotax():
 
         return yearList
 
-    def _calculateTotalTaxYearCGT(self, losses, gainsNoDiscount, gainsDiscount, discountRate):
+    def calculateTotalTaxYearCGT(self, losses, gainsNoDiscount, gainsDiscount, discountRate):
         #formula used to calculate CGT gains after losses and eligible discounts
 
-        losses = abs(losses) *-1
+        losses = abs(losses) *1
         if gainsNoDiscount + gainsDiscount < losses:#if losses greater than all my gains
             return gainsDiscount + (gainsNoDiscount - losses)
         elif gainsNoDiscount >= losses: #if gainsNoDiscount cover all losses offset only them
