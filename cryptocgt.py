@@ -118,10 +118,14 @@ class Cryptotax():
                 try:
                     #cur.execute(''' INSERT INTO currencyfx (date, fxrate, basefx, foreignfx) VALUES(?,?,?,?)''', (date, fxrate, base_currency, foreign_currency))
                     #db.commit()
-                    currencyfx_table.insert().execute(date = date, base = "AUD", foreign = foreign_currency, fxrate = fxrate)
+                    #currencyfx_table.insert().execute(date = date, base = "AUD", foreign = foreign_currency, fxrate = fxrate)
+                    ins = currencyfx_table.insert()
+                    add_fx = ins.values(date=date, base="AUD", foreign=foreign_currency, fxrate=fxrate)
+                    conn.execute(add_fx)
                     return fxrate
                 except Exception as e:
                     #db.rollback()
+                    print(e)
                     return (e)
 
             #db.close()
