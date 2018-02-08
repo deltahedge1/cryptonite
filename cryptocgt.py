@@ -7817,7 +7817,7 @@ class Cryptotax():
 
         return yearList
 
-    def calculateTotalTaxYearCGT(self, losses, gainsNoDiscount, gainsDiscount, discountRate):
+    def _calculateTotalTaxYearCGT(self, losses, gainsNoDiscount, gainsDiscount, discountRate):
         #formula used to calculate CGT gains after losses and eligible discounts
 
         losses = abs(losses) *1

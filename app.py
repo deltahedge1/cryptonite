@@ -18,6 +18,19 @@ app = Flask(__name__)
 CORS(app)
 app.config["SECRET_KEY"] = 'aefaf674ac254f8ca6c1b6a73880aa55'
 
+try:
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+except:
+    try:
+        app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + os.path.join(basedir, 'app.db')
+    except:
+        pass
+
+try:
+    db = SQLAlchemy(app)
+except:
+    pass
+
 
 class User(db.Model):
     #_id = db.Column(db.Integer, primary_key=True)
@@ -34,35 +47,6 @@ class User(db.Model):
 
     def __repr__(self):
         return '<Name %r>' % self.name
-
-class Currencyfx(db.Model):
-    __tablename__ = "currencyfx"
-    _id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.DateTime, default=datetime.utcnow)
-    base = db.Column(db.String(3))
-    foreign = db.Column(db.String(3))
-    fx = db.Column(db.Float())
-
-    def __init__(self, date, base, foreign, fx):
-        self.date = date
-        self.base = base
-        self.foreign = foreign
-        self.fx = fx
-
-    def __repr__(self):
-        return '<_id %r>' % self._id
-try:
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
-except:
-    try:
-        app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + os.path.join(basedir, 'app.db')
-    except:
-        pass
-
-try:
-    db = SQLAlchemy(app)
-except:
-    pass
 
 api = Api(app)
 
@@ -127,7 +111,7 @@ class Cryptonite(Resource):
 
         capturedData =  request.get_json()
         data = capturedData["data"]
-        entityType = capturedData["entitytype"]
+        entityType = capturedData["entityType"]
 
         return(cgtcalculator.calculateCGT(data,entityType))
 
@@ -138,7 +122,7 @@ class GetAttributes(Resource):
         return cgtcalculator.getEntityTypes()
 
 api.add_resource(Cryptonite, "/api/v1/cgt")
-api.add_resource(GetAttributes, "/api/v1/entityTypes")
+api.add_resource(GetAttributes, "/api/v1/entitytypes")
 api.add_resource(Test, "/test")
 
 if __name__ == "__main__":
