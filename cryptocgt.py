@@ -54,7 +54,7 @@ data = [
 ]
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-engine = create_engine('sqlite:///'+os.path.join(basedir,"currfxdb"),echo=False)
+engine = create_engine('sqlite:///'+os.path.join(basedir,"currfxdb"),echo=False,connect_args={'check_same_thread':False})
 metadata = MetaData(bind=engine)
 
 currencyfx_table = Table('currencyfxtbl', metadata,
