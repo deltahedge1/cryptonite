@@ -9,28 +9,28 @@ import datetime
 
 def randomData(number):
     cryptoCurrencies = ["Xbt","Btc","Eth"]
-    
+
     data = []
     for i in range(0,number):
-        
+
         dateRandom = []
         volumeRandom = []
         avgPriceRandom = []
         cryptoRandom = None
-        
+
         for i in range(0,2):
-             year = random.randint(2007, 2017)
+             year = random.randint(2009, 2017)
              month = random.randint(1, 12)
              day = random.randint(1, 28)
              dateTemp = datetime.datetime(year, month, day)
              dateRandom.append(dateTemp)
-             
+
              volumeRandom.append(random.randint(1,10000))
              avgPriceRandom.append(random.randint(1,1000))
-             
+
         cryptoRandom = random.choice(cryptoCurrencies)
-             
-        
+
+
         tempData1= {
             "AvgPrice": avgPriceRandom[0],
             "CreatedTimestampUtc":(min(dateRandom)).isoformat(),
@@ -45,7 +45,7 @@ def randomData(number):
             "Value":17.47,
             "Volume":max(volumeRandom)
             }
-        
+
         tempData2 = {
             "AvgPrice":avgPriceRandom[1],
             "CreatedTimestampUtc":(max(dateRandom)).isoformat(),
@@ -60,9 +60,8 @@ def randomData(number):
             "Value":17.47,
             "Volume":min(volumeRandom)
             }
-        
+
         data.append(tempData1)
         data.append(tempData2)
-  
-    return(data)
 
+    return(data)

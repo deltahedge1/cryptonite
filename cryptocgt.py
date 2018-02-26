@@ -126,6 +126,7 @@ class Cryptotax():
                 fxrate = float(response["rates"][foreign_currency])
 
                 insertStatement = currencyfx_tbl.insert().execute(foreignfx=foreign_currency, basefx=base_currency, fxrate=fxrate, date=date)
+                return(fxrate)
 
         except Exception as e:
             print(e)
@@ -168,6 +169,8 @@ class Cryptotax():
 
                 if type(item["CreatedTimestampUtc"]) is str:
                     item["CreatedTimestampUtc"] = dateutil.parser.parse(item["CreatedTimestampUtc"])
+                else:
+                    pass
 
                 self._tempData.append(item)
 
