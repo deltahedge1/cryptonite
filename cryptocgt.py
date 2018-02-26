@@ -168,7 +168,9 @@ class Cryptotax():
                     item["AvgPriceFx"] = item["AvgPrice"]
                     item["AvgPrice"] = item["AvgPrice"]/self.convertFX(item["CreatedTimestampUtc"], item["SecondaryCurrencyCode"].upper())
 
-
+                if type(item["CreatedTimestampUtc"]) is str:
+                    item["CreatedTimestampUtc"] = dateutil.parser.parse(item["CreatedTimestampUtc"])
+                    
                 self._tempData.append(item)
 
         self._tempData = sorted(self._tempData, key=lambda k: k['CreatedTimestampUtc']) #sorting times
