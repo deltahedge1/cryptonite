@@ -65,15 +65,15 @@ def token_required(f):
         if "x-access-token" in request.headers:
             token = request.headers["x-access-token"]
         else:
-            return ({"message":"token is missing"}), 401
+            return ({"message":"token is missing"}, 401)
 
         if not token:
-            return ({"message":"token is missing"}), 401
+            return ({"message":"token is missing"}, 401)
 
         try:
             data = jwt.decode(token, app.config["SECRET_KEY"])
         except:
-            return ({"message":"token is invalid"}), 401
+            return ({"message":"token is invalid"}, 401)
 
         return f(*args,**kwargs)
     return decorated
@@ -117,7 +117,11 @@ class Cryptonite(Resource):
 
         capturedData =  request.get_json()
         data = capturedData["data"]
-        entityType = capturedData["entityType"]
+
+        if "entityType" not in capturedData:
+            entityType = "Individual"
+        else:
+            entityType = capturedData["entityType"]
 
         return(cgtcalculator.calculateCGT(data,entityType))
 

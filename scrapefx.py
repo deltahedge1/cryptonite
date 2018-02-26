@@ -1,3 +1,7 @@
+"""
+script used to pull in historical fx rate for USD and NZD
+"""
+
 import pandas as pd
 import datetime
 from dbconfig import engine

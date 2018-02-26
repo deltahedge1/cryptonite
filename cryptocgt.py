@@ -21,7 +21,8 @@ import sqlite3
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData, Column, Table, ForeignKey
 from sqlalchemy import Integer, String, Float, Date
-from sqlalchemy.sql import select, and_
+from sqlalchemy import select
+from dbconfig import users_tbl, currencyfx_tbl
 
 data = [
     {
@@ -78,13 +79,15 @@ class Cryptotax():
     def convertFX(self, date, foreign_currency, base_currency="AUD"):
         #reference for api docs http://fixer.io/
 
-        #used the datetime iso format
+        #used the datetime in datetime.datetime format with time portion all zero's
+        date = datetime.datetime(date.year, date.month, date.day, 0, 0, 0)
+
         foreign_currency = foreign_currency.upper()
 
         if base_currency:
             base_currency = base_currency.upper()
 
-        date = datetime.datetime(date.year,date.month, date.day)
+        #date = datetime.datetime(date.year,date.month, date.day)
 
         try:
             #db = sqlite3.connect(os.path.join(basedir,"currencyfxdb"))
@@ -92,14 +95,17 @@ class Cryptotax():
             #cur.execute('''SELECT fxrate FROM currencyfx WHERE date=? AND foreignfx=?;''', (date,foreign_currency))
             #fxrate = cur.fetchone()
 
-            conn = engine.connect()
-            sqlQuery = select([currencyfx_table.c.fxrate], and_(currencyfx_table.c.date == date, currencyfx_table.c.foreign == foreign_currency))
+            #conn = engine.connect()
+            #sqlQuery = select([currencyfx_table.c.fxrate], and_(currencyfx_table.c.date == date, currencyfx_table.c.foreign == foreign_currency))
 
-            sqlResult = conn.execute(sqlQuery)
-            fxrate = sqlResult.fetchone()
+            #sqlResult = conn.execute(sqlQuery)
+            #fxrate = sqlResult.fetchone()
+
+            selectQuery = select([currencyfx_tbl.c.fxrate], (currencyfx_tbl.c.date == date) & (currencyfx_tbl.c.foreignfx == foreign_currency))
+            fxrate = list(selectQuery.execute())
 
             if fxrate != None:
-                return fxrate[0]
+                return fxrate[0][0]
             else:
                 dateAPI = date.strftime("%Y-%m-%d")
                 #convert FX rates using
@@ -109,29 +115,19 @@ class Cryptotax():
                 while True:
                     r = requests.get(url)
                     i += 1
-                    if r.status_code == 200 or i == 20:
+                    if r.status_code == 200:
                         break
-                    else:
-                        return ("error in FX api")
+
+                    if i == 20:
+                        print("error in fx api")
+                        exit()
 
                 response = json.loads(r.text) #'{"base":"USD","date":"2013-08-05","rates":{"AUD":1.1247}}'
                 fxrate = float(response["rates"][foreign_currency])
-                try:
-                    #cur.execute(''' INSERT INTO currencyfx (date, fxrate, basefx, foreignfx) VALUES(?,?,?,?)''', (date, fxrate, base_currency, foreign_currency))
-                    #db.commit()
-                    #currencyfx_table.insert().execute(date = date, base = "AUD", foreign = foreign_currency, fxrate = fxrate)
-                    ins = currencyfx_table.insert()
-                    add_fx = ins.values(date=date, base="AUD", foreign=foreign_currency, fxrate=fxrate)
-                    conn.execute(add_fx)
-                    return fxrate
-                except Exception as e:
-                    #db.rollback()
-                    print(e)
 
-            #db.close()
+                insertStatement = currencyfx_tbl.insert().execute(foreignfx=foreign_currency, basefx=base_currency, fxrate=fxrate, date=date)
 
         except Exception as e:
-            #db.rollback()
             print(e)
 
     def getEntityTypes(self):
@@ -166,11 +162,13 @@ class Cryptotax():
                 #convert foreign curreny to AUD
                 if item["SecondaryCurrencyCode"].upper() != "AUD":
                     item["AvgPriceFx"] = item["AvgPrice"]
-                    item["AvgPrice"] = item["AvgPrice"]/self.convertFX(item["CreatedTimestampUtc"], item["SecondaryCurrencyCode"].upper())
+
+                    fxRate = self.convertFX(item["CreatedTimestampUtc"], item["SecondaryCurrencyCode"].upper())
+                    item["AvgPrice"] = item["AvgPrice"]/fxRate
 
                 if type(item["CreatedTimestampUtc"]) is str:
                     item["CreatedTimestampUtc"] = dateutil.parser.parse(item["CreatedTimestampUtc"])
-                    
+
                 self._tempData.append(item)
 
         self._tempData = sorted(self._tempData, key=lambda k: k['CreatedTimestampUtc']) #sorting times
