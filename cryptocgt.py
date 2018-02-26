@@ -8,6 +8,7 @@ need to look at converting the currencies to aud
 need to look at how transfers look
 need to implement fees
 need to add the Institution vs Company entity and hence the 50% CGT discount and how to output it(Added)
+changes made to handle strings in date
 """
 
 import dateutil.parser
@@ -166,10 +167,10 @@ class Cryptotax():
                 if item["SecondaryCurrencyCode"].upper() != "AUD":
                     item["AvgPriceFx"] = item["AvgPrice"]
                     item["AvgPrice"] = item["AvgPrice"]/self.convertFX(item["CreatedTimestampUtc"], item["SecondaryCurrencyCode"].upper())
-		
-		
+
+
                 self._tempData.append(item)
-		
+
         self._tempData = sorted(self._tempData, key=lambda k: k['CreatedTimestampUtc']) #sorting times
 
         for item in self._tempData:
