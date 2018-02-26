@@ -158,8 +158,9 @@ class Cryptotax():
         for item in self._data:
             #if item['Status'] == "Filled" or "PartiallyFilledAndCancelled" or "PartiallyFilled" or "PartiallyFilledAndExpired": #check if order if filled or paritally filled
             if item['Status'] in filledStatusList:
-                item["CreatedTimestampUtc"] = dateutil.parser.parse(item["CreatedTimestampUtc"])  #convert to datetime
-
+                #item["CreatedTimestampUtc"] = dateutil.parser.parse(item["CreatedTimestampUtc"])  #convert to datetime
+                tempDate = str(item["CreatedTimestampUtc"])
+                item["CreatedTimestampUtc"] = datetime.datetime.strptime(tempDate[0:10],"%Y-%m-%d")
                 #convert foreign curreny to AUD
                 if item["SecondaryCurrencyCode"].upper() != "AUD":
                     item["AvgPriceFx"] = item["AvgPrice"]
@@ -167,17 +168,18 @@ class Cryptotax():
                     fxRate = self.convertFX(item["CreatedTimestampUtc"], item["SecondaryCurrencyCode"].upper())
                     item["AvgPrice"] = float(item["AvgPrice"])/fxRate
 
-                if type(item["CreatedTimestampUtc"]) is str:
-                    item["CreatedTimestampUtc"] = dateutil.parser.parse(item["CreatedTimestampUtc"])
-                else:
-                    pass
+                #if type(item["CreatedTimestampUtc"]) is str:
+                #    item["CreatedTimestampUtc"] = dateutil.parser.parse(item["CreatedTimestampUtc"])
+                #else:
+                #    pass
 
                 self._tempData.append(item)
 
         self._tempData = sorted(self._tempData, key=lambda k: k['CreatedTimestampUtc']) #sorting times
 
         for item in self._tempData:
-            item["CreatedTimestampUtc"] = item["CreatedTimestampUtc"].isoformat() #converting datetime objects to iso 8061 again
+            #item["CreatedTimestampUtc"] = item["CreatedTimestampUtc"].isoformat() #converting datetime objects to iso 8061 again
+            item["CreatedTimestampUtc"] = item["CreatedTimestampUtc"].strftime("%Y-%m-%d")
 
         return(self._tempData)
 
