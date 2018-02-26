@@ -164,7 +164,7 @@ class Cryptotax():
                     item["AvgPriceFx"] = item["AvgPrice"]
 
                     fxRate = self.convertFX(item["CreatedTimestampUtc"], item["SecondaryCurrencyCode"].upper())
-                    item["AvgPrice"] = item["AvgPrice"]/fxRate
+                    item["AvgPrice"] = float(item["AvgPrice"])/fxRate
 
                 if type(item["CreatedTimestampUtc"]) is str:
                     item["CreatedTimestampUtc"] = dateutil.parser.parse(item["CreatedTimestampUtc"])
