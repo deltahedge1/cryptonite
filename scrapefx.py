@@ -13,7 +13,7 @@ except:
 
 #df = pd.DataFrame([["USD","AUD",3.42,datetime.date(2012,6,12)]], columns=["foreignfx","basefx","fxrate","date"])
 dateRange = pd.date_range(datetime.date(2009,1,1), datetime.date.today())
-#dateRange = pd.date_range(datetime.date(2009,1,1), datetime.date(2009,1,15))
+#dateRange = pd.date_range(datetime.date(2009,1,1), datetime.date(2009,1,5))
 
 fxList = []
 for dateItem in dateRange:
