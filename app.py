@@ -57,6 +57,7 @@ class User(db.Model):
 
 api = Api(app)
 
+#decorator for access main cryptonite api
 def token_required(f):
     @wraps(f)
     def decorated(*args,**kwargs):
@@ -86,12 +87,46 @@ def token_required(f):
                     else:
                         return ({"message":"you are not an activated user"}, 401)
                 else:
-                    return ({"message":"public_id not activated"}, 401)
+                    return ({"message":"public_id not found"}, 401)
             except:
                 return ({"message": "an error occured and your token may or may not be correct"}, 500)
         except:
             return ({"message":"token is invalid"}, 401)
 
+    return decorated
+
+#decorator for admin api, checks if jwt decoded token for public_id for admin and then looks up admin from company column
+def admin_token_required(f):
+    @wraps(f)
+    def decorated(*args,**kwargs):
+        token = None
+
+        if "x-access-token" not in request.headers:
+            return ({"message":"x-access-token is missing from header"})
+
+        if "x-access-token" in request.headers:
+            token = request.headers["x-access-token"]
+        else:
+            return ({"message":"token is missing"}, 401)
+
+        if not token:
+            return ({"message":"token is missing"}, 401)
+
+        try:
+            data = jwt.decode(token, app.config["SECRET_KEY"])
+            public_id = data['public_id']
+            try:
+                selectQuery = users_tbl.select(users_tbl.c.public_id == public_id)
+                result = list(selectQuery.execute())
+
+                if result[0][2]=="admin":
+                    return f(*args,**kwargs)
+                else:
+                    return ({"message":"you are not an admin"}, 403)
+            except:
+                return ({"message": "an error occured and your token may or may not be correct"}, 500)
+        except:
+            return ({"message":"token is invalid"}, 401)
 
     return decorated
 
@@ -150,6 +185,7 @@ class GetAttributes(Resource):
 
 class SecurityTokens(Resource):
     #get the security token of a user using the company name
+    @admin_token_required
     def get(self, company):
         selectQuery = users_tbl.select(users_tbl.c.company == company)
         result = list(selectQuery.execute())
@@ -165,6 +201,7 @@ class SecurityTokens(Resource):
         else:
             return({"message":"no such company exists in the database"})
 
+    @admin_token_required
     def put(self, company):
         #add users to the table unless they already exist
         try:
@@ -185,6 +222,7 @@ class SecurityTokens(Resource):
 
 class PublicIdSecurityTokens(Resource):
     #get the security token of a user using the public id
+    @admin_token_required
     def get(self, public_id):
         selectQuery = users_tbl.select(users_tbl.c.public_id == public_id)
         result = list(selectQuery.execute())
