@@ -6,6 +6,10 @@ Created on Wed Jan 17 20:24:52 2018
 """
 import random
 import datetime
+import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+print(basedir)
 
 def randomData(number):
     cryptoCurrencies = ["Xbt","Btc","Eth"]
@@ -40,7 +44,7 @@ def randomData(number):
             "Outstanding":0,
             "Price":"null",
             "PrimaryCurrencyCode": cryptoRandom,
-            "SecondaryCurrencyCode":"Usd",
+            "SecondaryCurrencyCode":"Aud",
             "Status":"Filled",
             "Value":17.47,
             "Volume":max(volumeRandom)
@@ -55,7 +59,7 @@ def randomData(number):
             "Outstanding":0,
             "Price":"null",
             "PrimaryCurrencyCode": cryptoRandom,
-            "SecondaryCurrencyCode":"Usd",
+            "SecondaryCurrencyCode":"Aud",
             "Status":"Filled",
             "Value":17.47,
             "Volume":min(volumeRandom)

@@ -178,8 +178,8 @@ class Cryptotax():
         self._tempData = sorted(self._tempData, key=lambda k: k['CreatedTimestampUtc']) #sorting times
 
         for item in self._tempData:
-            #item["CreatedTimestampUtc"] = item["CreatedTimestampUtc"].isoformat() #converting datetime objects to iso 8061 again
-            item["CreatedTimestampUtc"] = item["CreatedTimestampUtc"].strftime("%Y-%m-%d")
+            item["CreatedTimestampUtc"] = item["CreatedTimestampUtc"].isoformat() #converting datetime objects to iso 8061 again
+            #item["CreatedTimestampUtc"] = item["CreatedTimestampUtc"].strftime("%Y-%m-%d")
 
         return(self._tempData)
 
