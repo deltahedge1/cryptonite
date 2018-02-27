@@ -12,6 +12,8 @@ from datetime import datetime
 import json
 import requests
 from appconfig import APP_SECRET_KEY # this is an external file that has the secret key
+from dbconfig import users_tbl #this is used to get and check security tokens
+from sqlalchemy import select
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -133,13 +135,62 @@ class GetAttributes(Resource):
         return cgtcalculator.getEntityTypes()
 
 class SecurityTokens(Resource):
+    #get the security token of a user using the company name
+    def get(self, company):
+        selectQuery = users_tbl.select(users_tbl.c.company == company)
+        result = list(selectQuery.execute())
 
-    def get(self):
-        pass
+        if result:
+            _id = result[0][0]
+            public_id = result[0][1]
+            company=result[0][2]
+            token = result[0][3]
+            active = result[0][4]
+
+            return({"company": company, "public_id": public_id, "token":token, "active": active})
+        else:
+            return({"message":"no such company exists in the database"})
+
+    def put(self, company):
+        #add users to the table unless they already exist
+        try:
+            selectQuery = users_tbl.select(users_tbl.c.company == company)
+            result = list(selectQuery.execute())
+
+            if result:
+                return ({"message": "company already exists under that name pick a new one"})
+
+            #public_id = str(uuid.uuid4())
+            public_id = "818fb7e6-7074-4730-8bd8-cba675535280"
+            token = str(jwt.encode({"public_id":public_id}, APP_SECRET_KEY, algorithm='HS256').decode("UTF-8"))
+            users_tbl.insert().execute(public_id = public_id, token = token, company=company)
+            return ({"message": "successfully created a new user", "company": company, "public_id":public_id, "token":token}, 201)
+
+        except:
+            return({"message": "unable to update database"}, 500)
+
+class PublicIdSecurityTokens(Resource):
+    #get the security token of a user using the public id
+    def get(self, public_id):
+        selectQuery = users_tbl.select(users_tbl.c.public_id == public_id)
+        result = list(selectQuery.execute())
+
+        if result:
+            _id = result[0][0]
+            public_id = result[0][1]
+            company=result[0][2]
+            token = result[0][3]
+            active = result[0][4]
+
+            return({"company": company, "public_id": public_id, "token":token, "active": active})
+        else:
+            return({"message":"no such public_id exists in the database"})
 
 api.add_resource(Cryptonite, "/api/v1/cgt")
 api.add_resource(GetAttributes, "/api/v1/entitytypes")
 api.add_resource(Test, "/test")
+api.add_resource(SecurityTokens, "/admin/token/company/<string:company>")
+api.add_resource(PublicIdSecurityTokens, "/admin/token/publicid/<string:public_id>")
 
 if __name__ == "__main__":
     app.run(debug=True)

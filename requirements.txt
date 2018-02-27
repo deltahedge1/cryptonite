@@ -9,3 +9,4 @@ psycopg2
 wrapt
 flask-cors
 requests
+sqlalchemy

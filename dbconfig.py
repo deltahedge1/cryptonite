@@ -20,7 +20,7 @@ def get_publicid(context):
 users_tbl = Table('users_tbl', metadata,
     Column('id', Integer, primary_key=True),
     Column('public_id', String(36), unique=True, default=str(uuid.uuid4())),
-    Column('company', String(40)),
+    Column('company', String(40), unique=True, nullable=False),
     Column('token', String, default= get_publicid),
     Column('active',Boolean, default=True)
 )
