@@ -122,7 +122,7 @@ def admin_token_required(f):
                 if result[0][2]=="admin":
                     return f(*args,**kwargs)
                 else:
-                    return ({"message":"you are not an admin"}, 403)
+                    return ({"message":"forbidden not admin"}, 403)
             except:
                 return ({"message": "an error occured and your token may or may not be correct"}, 500)
         except:
@@ -202,7 +202,7 @@ class SecurityTokens(Resource):
             return({"message":"no such company exists in the database"})
 
     @admin_token_required
-    def put(self, company):
+    def post(self, company):
         #add users to the table unless they already exist
         try:
             selectQuery = users_tbl.select(users_tbl.c.company == company)
