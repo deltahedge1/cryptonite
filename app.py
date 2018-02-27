@@ -75,10 +75,24 @@ def token_required(f):
 
         try:
             data = jwt.decode(token, app.config["SECRET_KEY"])
+            public_id = data['public_id']
+            try:
+                selectQuery = users_tbl.select(users_tbl.c.public_id == public_id)
+                result = list(selectQuery.execute())
+
+                if result:
+                    if result[0][4] == True:
+                        return f(*args,**kwargs)
+                    else:
+                        return ({"message":"you are not an activated user"}, 401)
+                else:
+                    return ({"message":"public_id not activated"}, 401)
+            except:
+                return ({"message": "an error occured and your token may or may not be correct"}, 500)
         except:
             return ({"message":"token is invalid"}, 401)
 
-        return f(*args,**kwargs)
+
     return decorated
 
 
@@ -160,8 +174,8 @@ class SecurityTokens(Resource):
             if result:
                 return ({"message": "company already exists under that name pick a new one"})
 
-            #public_id = str(uuid.uuid4())
-            public_id = "818fb7e6-7074-4730-8bd8-cba675535280"
+            public_id = str(uuid.uuid4())
+            #public_id = "818fb7e6-7074-4730-8bd8-cba675535280"
             token = str(jwt.encode({"public_id":public_id}, APP_SECRET_KEY, algorithm='HS256').decode("UTF-8"))
             users_tbl.insert().execute(public_id = public_id, token = token, company=company)
             return ({"message": "successfully created a new user", "company": company, "public_id":public_id, "token":token}, 201)
