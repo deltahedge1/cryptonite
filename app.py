@@ -11,6 +11,7 @@ from flask_cors import CORS
 from datetime import datetime
 import json
 import requests
+from appconfig import APP_SECRET_KEY # this is an external file that has the secret key
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -18,7 +19,7 @@ cgtcalculator = Cryptotax()
 
 app = Flask(__name__)
 CORS(app)
-app.config["SECRET_KEY"] = 'aefaf674ac254f8ca6c1b6a73880aa55'
+app.config["SECRET_KEY"] = APP_SECRET_KEY
 
 try:
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
@@ -130,6 +131,11 @@ class GetAttributes(Resource):
     @token_required
     def get(self):
         return cgtcalculator.getEntityTypes()
+
+class SecurityTokens(Resource):
+
+    def get(self):
+        pass
 
 api.add_resource(Cryptonite, "/api/v1/cgt")
 api.add_resource(GetAttributes, "/api/v1/entitytypes")
