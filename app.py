@@ -267,10 +267,10 @@ api.add_resource(Cryptonite, "/api/v1/cgt")
 api.add_resource(GetAttributes, "/api/v1/entitytypes")
 api.add_resource(Test, "/test")
 
-api.add_resource(SecurityTokens, "/admin/gettoken/company/<string:company>")
-api.add_resource(PublicIdSecurityTokens, "/admin/gettoken/publicid/<string:public_id>")
-api.add_resource(AddSecurityTokens, "/admin/addtoken/company/<string:company>")
-api.add_resource(ChangeSecurityTokens, "/admin/changetoken/publicid/<string:public_id>")
+api.add_resource(SecurityTokens, "/admin/gettoken/company/<string:company>") #GET request to get details using company name
+api.add_resource(PublicIdSecurityTokens, "/admin/gettoken/publicid/<string:public_id>") #get request to get details using public_id
+api.add_resource(AddSecurityTokens, "/admin/addtoken/company/<string:company>") #POST request to add a new user to the database and get the access token
+api.add_resource(ChangeSecurityTokens, "/admin/changetoken/publicid/<string:public_id>") #PUT request to change a users token using their public_id
 
 if __name__ == "__main__":
     app.run(debug=True)

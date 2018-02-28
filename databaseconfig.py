@@ -1,3 +1,5 @@
+#this is old use dbconfig
+
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData, Column, Table, ForeignKey
 from sqlalchemy import Integer, String, Float, Date
