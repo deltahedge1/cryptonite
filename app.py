@@ -237,8 +237,8 @@ class AddSecurityTokens(Resource):
             users_tbl.insert().execute(public_id = public_id, token = token, company=company)
             return ({"message": "successfully created a new user", "company": company, "public_id":public_id, "token":token}, 201)
 
-        except:
-            return({"message": "unable to update database"}, 500)
+        except Exception as e:
+            return({"message": e}, 500)
 
 class ChangeSecurityTokens(Resource):
     @admin_token_required
