@@ -6,8 +6,8 @@ import jwt
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-#engine = create_engine('sqlite:///'+os.path.join(basedir,"appdatabases.db"))
-engine = create_engine('postgresql://cryptonite:Kn0ckKn0ck@cryptonite.cdzci8hdolza.ap-southeast-2.rds.amazonaws.com:5432/cryptonitedb')
+engine = create_engine('sqlite:///'+os.path.join(basedir,"appdatabases.db"))
+#engine = create_engine('postgresql://cryptonite:Kn0ckKn0ck@cryptonite.cdzci8hdolza.ap-southeast-2.rds.amazonaws.com:5432/cryptonitedb')
 
 metadata = MetaData(bind=engine)
 

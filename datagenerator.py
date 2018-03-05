@@ -37,14 +37,14 @@ def randomData(number):
 
         tempData1= {
             "AvgPrice": avgPriceRandom[0],
-            "CreatedTimestampUtc":(min(dateRandom)).isoformat(),
+            "CreatedTimestampUtc":str((min(dateRandom)).isoformat()),
             "FeePercent":0.005,
             "OrderGuid":"5c8885cd-5384-4e05-b397-9f5119353e10",
             "OrderType":"MarketBid",
             "Outstanding":0,
             "Price":"null",
-            "PrimaryCurrencyCode": cryptoRandom,
-            "SecondaryCurrencyCode":"Usd",
+            "PrimaryCurrencyCode": str(cryptoRandom),
+            "SecondaryCurrencyCode":"Aud",
             "Status":"Filled",
             "Value":17.47,
             "Volume":max(volumeRandom)
@@ -58,8 +58,8 @@ def randomData(number):
             "OrderType":"MarketOffer",
             "Outstanding":0,
             "Price":"null",
-            "PrimaryCurrencyCode": cryptoRandom,
-            "SecondaryCurrencyCode":"Usd",
+            "PrimaryCurrencyCode": str(cryptoRandom),
+            "SecondaryCurrencyCode":"Aud",
             "Status":"Filled",
             "Value":17.47,
             "Volume":min(volumeRandom)
