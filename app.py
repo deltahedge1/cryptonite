@@ -88,8 +88,8 @@ def token_required(f):
                         return ({"message":"you are not an activated user"}, 401)
                 else:
                     return ({"message":"public_id not found"}, 401)
-            except:
-                return ({"message": "an error occured and your token may or may not be correct"}, 500)
+            except Exception as e:
+                return ({"message": str(e)}, 500)
         except:
             return ({"message":"token is invalid"}, 401)
 
