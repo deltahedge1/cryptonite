@@ -44,7 +44,7 @@ def randomData(number):
             "Outstanding":0,
             "Price":"null",
             "PrimaryCurrencyCode": cryptoRandom,
-            "SecondaryCurrencyCode":"Aud",
+            "SecondaryCurrencyCode":"Usd",
             "Status":"Filled",
             "Value":17.47,
             "Volume":max(volumeRandom)
@@ -59,7 +59,7 @@ def randomData(number):
             "Outstanding":0,
             "Price":"null",
             "PrimaryCurrencyCode": cryptoRandom,
-            "SecondaryCurrencyCode":"Aud",
+            "SecondaryCurrencyCode":"Usd",
             "Status":"Filled",
             "Value":17.47,
             "Volume":min(volumeRandom)
