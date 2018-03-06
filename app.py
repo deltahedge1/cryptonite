@@ -88,8 +88,8 @@ def token_required(f):
                         return ({"message":"you are not an activated user"}, 401)
                 else:
                     return ({"message":"public_id not found"}, 401)
-            except Exception as e:
-                return ({"message": str(e)}, 500)
+            except:
+                return ({"message": "an error occured and your token may or may not be valid", 500)
         except:
             return ({"message":"token is invalid"}, 401)
 
@@ -237,8 +237,8 @@ class AddSecurityTokens(Resource):
             users_tbl.insert().execute(public_id = public_id, token = token, company=company)
             return ({"message": "successfully created a new user", "company": company, "public_id":public_id, "token":token}, 201)
 
-        except Exception as e:
-            return({"message": str(e)}, 500)
+        except:
+            return({"message": "unable to update database}, 500)
 
 class ChangeSecurityTokens(Resource):
     @admin_token_required
