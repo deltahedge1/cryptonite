@@ -273,4 +273,4 @@ api.add_resource(AddSecurityTokens, "/admin/addtoken/company/<string:company>") 
 api.add_resource(ChangeSecurityTokens, "/admin/changetoken/publicid/<string:public_id>") #PUT request to change a users token using their public_id
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
