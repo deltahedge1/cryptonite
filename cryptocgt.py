@@ -163,6 +163,9 @@ class Cryptotax():
                 #item["CreatedTimestampUtc"] = datetime.datetime.strptime(tempDate[0:10],"%Y-%m-%d")
                 #convert foreign curreny to AUD
                 if item["SecondaryCurrencyCode"].upper() != "AUD":
+                    if item["SecondaryCurrencyCode"].upper() != "USD" and item["SecondaryCurrencyCode"].upper() != "NZD": #check if valid currency we account for
+                        return "error not valid currency"
+
                     item["AvgPriceFx"] = item["AvgPrice"]
 
                     tempDate = dateutil.parser.parse(item["CreatedTimestampUtc"])
@@ -258,6 +261,10 @@ class Cryptotax():
         #calculates CGT and returns for each CGT event per crypto
         self._data = data
         self._data = self._filteredForFilledOrdersAndTimeSortAndConvertFX(self._data)
+
+        #error check to see if not a valid currency
+        if self._data == "error not valid currency":
+            return({"message":"please only use Aud, Usd, and Nzd for the SecondaryCurrencyCode"})
 
         #initialise the crypto currencies in portfolio, the offers, and bids
         self._cryptoList = self._uniqueCurrencies(data)
