@@ -89,7 +89,7 @@ def token_required(f):
                 else:
                     return ({"message":"public_id not found"}, 401)
             except:
-                return ({"message": "an error occured and your token may or may not be valid", 500)
+                return ({"message": "an error occured and your token may or may not be valid"}, 500)
         except:
             return ({"message":"token is invalid"}, 401)
 
@@ -238,7 +238,7 @@ class AddSecurityTokens(Resource):
             return ({"message": "successfully created a new user", "company": company, "public_id":public_id, "token":token}, 201)
 
         except:
-            return({"message": "unable to update database}, 500)
+            return({"message": "unable to update database"}, 500)
 
 class ChangeSecurityTokens(Resource):
     @admin_token_required
